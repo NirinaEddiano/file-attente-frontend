@@ -1,0 +1,834 @@
+:root {
+    --primary-blue: #1A3C6D;
+    --accent-gold: #FFD700;
+    --accent-turquoise: #06B6D4;
+    --bg-light: #F8FAFC;
+  }
+  
+  .bg-primary-blue { background-color: var(--primary-blue); }
+  .text-primary-blue { color: var(--primary-blue); }
+  .bg-accent-gold { background-color: var(--accent-gold); }
+  .text-accent-gold { color: var(--accent-gold); }
+  .bg-accent-turquoise { background-color: var(--accent-turquoise); }
+  .text-accent-turquoise { color: var(--accent-turquoise); }
+  .bg-bg-light { background-color: var(--bg-light); }
+  
+  .gold-border {
+    border: 2px solid var(--accent-gold);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gold-border:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cta-button {
+    background: linear-gradient(45deg, var(--accent-gold), #FFEC99);
+    color: var(--primary-blue);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .cta-button:hover {
+    background: linear-gradient(45deg, #FFEC99, var(--accent-gold));
+    transform: scale(1.05);
+  }
+  .cta-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease, height 0.5s ease;
+  }
+  .cta-button:active::after {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .secondary-button {
+    background: var(--accent-turquoise);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  .secondary-button:hover {
+    background: #05A3C0;
+    transform: scale(1.03);
+  }
+  
+  .card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  .parallax {
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+  @keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  
+  nav a.active {
+    background-color: var(--accent-turquoise);
+    border-radius: 8px;
+    padding: 8px 16px;
+  }
+
+/* Existing styles */
+
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.card {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+button:focus, a:focus {
+  outline: 2px solid var(--accent-turquoise);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  h2 {
+    font-size: 1.8rem;
+  }
+  .cta-button, .secondary-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  .card {
+    padding: 1.5rem;
+  }
+  button, a {
+    min-height: 44px;
+  }
+}
+
+.cta-button {
+  background-color: var(--primary-blue);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #1e40af;
+}
+
+.secondary-button {
+  background-color: transparent;
+  border: 2px solid var(--primary-blue);
+  color: var(--primary-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s;
+}
+
+.secondary-button:hover {
+  background-color: var(--primary-blue);
+  color: white;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gold-border {
+  border: 2px solid var(--accent-gold);
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Base styles */
+.bg-bg-light {
+  background-color: #f4f7fa;
+}
+
+.text-primary-blue {
+  color: #1e3a8a;
+}
+
+.bg-accent-gold {
+  background-color: #d4af37;
+}
+
+.bg-accent-turquoise {
+  background-color: #2d30d4;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.gold-border {
+  border: 2px solid #d4af37;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Status colors */
+.bg-yellow-100 {
+  background-color: #fefcbf;
+}
+
+.text-yellow-700 {
+  color: #b45309;
+}
+
+.bg-green-100 {
+  background-color: #d1fae5;
+}
+
+.text-green-700 {
+  color: #047857;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.text-red-700 {
+  color: #b91c1c;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.text-gray-700 {
+  color: #4b5563;
+}
+
+/* Scrollbar */
+.max-h-96 {
+  max-height: 24rem;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d4af37;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #b89b2f;
+}
+
+/* Buttons */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Custom Colors */
+.bg-bg-light {
+  background-color: #f5f7fa; /* Light background color */
+}
+
+.text-primary-blue {
+  color: #1e3a8a; /* Primary blue */
+}
+
+.text-accent-gold {
+  color: #facc15; /* Accent gold */
+}
+
+.text-accent-turquoise {
+  color: #2dd4bf; /* Accent turquoise */
+}
+
+.bg-primary-blue {
+  background-color: #1e3a8a;
+}
+
+.bg-accent-gold {
+  background-color: #facc15;
+}
+
+.bg-accent-turquoise {
+  background-color: #2dd4bf;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: #1e40af;
+}
+
+/* Card Styling */
+.card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Gold Border for Cards */
+.gold-border {
+  border: 2px solid #facc15;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+/* Button Styling */
+.cta-button {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #1e40af;
+}
+
+.cta-button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background-color: #6b7280;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s ease;
+}
+
+.secondary-button:hover {
+  background-color: #4b5563;
+}
+
+/* src/styles.css */
+.bg-bg-light {
+  background-color: #f5f5f5;
+}
+
+.text-primary-blue {
+  color: #1e40af;
+}
+
+.text-accent-gold {
+  color: #d4af37;
+}
+
+.text-accent-turquoise {
+  color: #2dd4bf;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.gold-border {
+  border: 1px solid #d4af37;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.transition-colors {
+  transition: color 0.2s ease-in-out;
+}
+
+.transition-shadow {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.focus\:ring-primary-blue:focus {
+  --tw-ring-color: #1e40af;
+}
+
+.focus\:border-primary-blue:focus {
+  border-color: #1e40af;
+}
+
+/* Remove dark mode styles and simplify */
+:root {
+  --primary-blue: #1e3a8a;
+  --accent-gold: #f59e0b;
+  --accent-turquoise: #2dd4bf;
+  --bg-light: #f3f4f6;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.bg-primary-blue { background-color: var(--primary-blue); }
+.text-primary-blue { color: var(--primary-blue); }
+.bg-accent-gold { background-color: var(--accent-gold); }
+.text-accent-gold { color: var(--accent-gold); }
+.bg-accent-turquoise { background-color: var(--accent-turquoise); }
+.text-accent-turquoise { color: var(--accent-turquoise); }
+.bg-bg-light { background-color: var(--bg-light); }
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.gold-border {
+  border: 2px solid var(--accent-gold);
+}
+
+button:focus, a:focus {
+  outline: 2px solid var(--accent-turquoise);
+  outline-offset: 2px;
+}
+
+/* Parallax Section */
+.parallax-section {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+  padding: 2rem 0;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* Feature Card Hover Effect */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card i {
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover i {
+  transform: scale(1.2);
+}
+
+/* Typing Animation Blink Cursor */
+.animate-blink {
+  animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Animations */
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Button Styling */
+.cta-button {
+  background: linear-gradient(45deg, var(--accent-gold), #FFEC99);
+  color: var(--primary-blue);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background: linear-gradient(45deg, #FFEC99, var(--accent-gold));
+  transform: scale(1.05);
+}
+
+.cta-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.cta-button:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+.secondary-button {
+  background: var(--accent-turquoise);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+  background: #4358e0;
+  transform: scale(1.03);
+}
+
+/* Floating Navigation Buttons */
+.floating-nav {
+  transition: all 0.3s ease;
+}
+
+.floating-nav:hover {
+  transform: scale(1.1);
+}
+
+/* Status colors */
+
+
+/* Scrollbar */
+.max-h-96 { max-height: 24rem; }
+.overflow-y-auto::-webkit-scrollbar { width: 8px; }
+.overflow-y-auto::-webkit-scrollbar-track { background: #f1f1f1; }
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d4af37;
+  border-radius: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb:hover { background: #b89b2f; }
+
+/* Buttons */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.transition-colors {
+  transition: color 0.2s ease-in-out;
+}
+
+.transition-shadow {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+@media (max-width: 640px) {
+  h2 {
+    font-size: 1.8rem;
+  }
+  .cta-button, .secondary-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  .card {
+    padding: 1.5rem;
+  }
+  button, a {
+    min-height: 44px;
+  }
+}
+
+/* Hero Section with Background and Overlay */
+.hero-section {
+  position: relative;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.hero-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Features Section */
+.parallax-section img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Final CTA Section */
+.cta-section {
+  position: relative;
+  padding: 4rem 0;
+}
+
+.cta-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.cta-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Signup Section */
+.signup-section {
+  position: relative;
+}
+
+.signup-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.signup-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Login Section */
+.login-section {
+  position: relative;
+}
+
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.login-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Ensure text readability on background images */
+.hero-section h2,
+.hero-section p,
+.cta-section h3,
+.cta-section button {
+  color: #ababab;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section .text-gray-600,
+.cta-section .text-primary-blue {
+  color: #cdcaca !important;
+}
+
+.hero-section .text-accent-gold {
+  color: var(--accent-gold) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
