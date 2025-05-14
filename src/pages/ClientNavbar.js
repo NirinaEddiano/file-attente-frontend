@@ -33,7 +33,7 @@ const ClientNavbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-blue-600 text-white p-4 shadow-md">
+    <nav className="bg-blue-600 text-white p-4 shadow-md relative z-[1005]">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <span className="text-xl font-bold flex items-center">
           <i className="fas fa-ticket-alt mr-2 text-accent-gold animate-pulse"></i> QueueMaster
@@ -41,7 +41,8 @@ const ClientNavbar = () => {
         <div className="md:hidden">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="focus:outline-none"
+            className="focus:outline-none focus:ring-2 focus:ring-accent-turquoise"
+            aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           >
             <svg
               className="w-6 h-6"
@@ -62,7 +63,7 @@ const ClientNavbar = () => {
         <div
           className={`${
             isMenuOpen ? 'flex' : 'hidden'
-          } md:flex flex-col md:flex-row md:items-center md:space-x-6 absolute md:static top-16 left-0 right-0 bg-blue-600 md:bg-transparent p-4 md:p-0 z-10`}
+          } md:flex flex-col md:flex-row md:items-center md:space-x-6 absolute md:static top-16 left-0 right-0 bg-blue-600 md:bg-transparent p-4 md:p-0 z-[1004]`}
         >
           <span className="font-medium mb-2 md:mb-0 flex items-center">
             <i className="fas fa-user-circle mr-2 text-accent-gold"></i> Bienvenue, {username || 'Client'}
@@ -114,6 +115,13 @@ const ClientNavbar = () => {
             <i className="fas fa-sign-out-alt mr-2"></i> Déconnexion
           </button>
         </div>
+        {/* Mobile Menu Overlay */}
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 z-[1003] transition-opacity ${
+            isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          } md:hidden`}
+          onClick={() => setIsMenuOpen(false)}
+        ></div>
       </div>
     </nav>
   );
