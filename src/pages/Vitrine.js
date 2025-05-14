@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import CountUp from 'react-countup';
 import axios from '../utils/axiosConfig';
 import './styles.css';
