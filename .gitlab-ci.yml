@@ -1,14 +1,12 @@
 image: node:lts
-
 cache:
   paths:
     - node_modules/
-
 pages:
   stage: deploy
   script:
     - npm install
-    - NODE_OPTIONS=--max_old_space_size=4096 npm run build
+    - CI=false NODE_OPTIONS=--max_old_space_size=4096 npm run build
     - cp build/index.html build/404.html
     - mv build public
   artifacts:

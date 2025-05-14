@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import CountUp from 'react-countup';
 import axios from '../utils/axiosConfig';
@@ -304,19 +304,13 @@ const Vitrine = () => {
         </button>
       </div>
       <footer className="bg-primary-blue text-white p-6 text-center relative z-10">
-        <p className="mb-2">© 2025 QueueMaster. Tous droits réservés.</p>
-        <div className="flex justify-center space-x-4">
-          <a href="#" className="text-accent-gold hover:text-accent-turquoise" aria-label="À propos de QueueMaster">
-            <i className="fas fa-info-circle mr-1"></i> À propos
-          </a>
-          <a href="#" className="text-accent-gold hover:text-accent-turquoise" aria-label="Contacter QueueMaster">
-            <i className="fas fa-envelope mr-1"></i> Contact
-          </a>
-          <a href="#" className="text-accent-gold hover:text-accent-turquoise" aria-label="Politique de confidentialité">
-            <i className="fas fa-shield-alt mr-1"></i> Confidentialité
-          </a>
-        </div>
-      </footer>
+  <p className="mb-2">© 2025 QueueMaster par RAMIADANARIVO Nirina Eddiano. Tous droits réservés.</p>
+  <div className="flex justify-center space-x-4">
+    <Link to="#" className="text-accent-gold hover:text-accent-turquoise" aria-label="Contacter QueueMaster">
+      <i className="fas fa-envelope mr-1"></i> Contact
+    </Link>
+  </div>
+</footer>
     </div>
   );
 };
