@@ -1,0 +1,18 @@
+image: node:lts
+
+cache:
+  paths:
+    - node_modules/
+
+pages:
+  stage: deploy
+  script:
+    - npm install
+    - npm run build
+    - cp build/index.html build/404.html # Pour gérer le routage côté client
+    - mv build public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master # Déploie uniquement depuis la branche master
