@@ -18,7 +18,7 @@ import EditGuichet from './pages/EditGuichet';
 
 function App() {
   return (
-    <Router basename="/file-attente-frontend">
+    <Router basename="/file-attente-frontend/">
       <Routes>
         <Route path="/" element={<Vitrine />} />
         <Route path="/signup" element={<Signup />} />
