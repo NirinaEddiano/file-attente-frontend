@@ -306,7 +306,7 @@ const Vitrine = () => {
       <footer className="bg-primary-blue text-white p-6 text-center relative z-10">
   <p className="mb-2">© 2025 QueueMaster par RAMIADANARIVO Nirina Eddiano. Tous droits réservés.</p>
   <div className="flex justify-center space-x-4">
-    <Link to="#" className="text-accent-gold hover:text-accent-turquoise" aria-label="Contacter QueueMaster">
+    <Link to="/contact" className="text-accent-gold hover:text-accent-turquoise" aria-label="Contacter QueueMaster">
       <i className="fas fa-envelope mr-1"></i> Contact
     </Link>
   </div>
