@@ -12,5 +12,10 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - master
+    expire_in: 30 days
+  environment:
+    name: production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    DISABLE_GZIP: "true"
