@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import CountUp from 'react-countup';
 import axios from '../utils/axiosConfig';
 import './styles.css';
@@ -66,7 +65,7 @@ const Vitrine = () => {
 
   return (
     <div className="min-h-screen bg-bg-light text-primary-blue relative overflow-hidden">
-      <Helmet>
+     
         <title>QueueMaster - Gérez vos files d’attente en banque</title>
         <meta name="description" content="Prenez un ticket, suivez votre position en temps réel et recevez des alertes avec QueueMaster." />
         <meta name="keywords" content="queue management, bank queue, ticket system, QueueMaster" />
@@ -75,7 +74,7 @@ const Vitrine = () => {
         <meta property="og:image" content="/images/queuemaster-preview.jpg" />
         <meta property="og:url" content="https://queuemaster.com" />
         <link rel="preload" href="/styles.css" as="style" />
-      </Helmet>
+     
       {/* Video Background */}
       <div className="absolute inset-0">
         <div className="w-full h-full object-cover opacity-50 bg-gradient-to-r from-blue-900 to-blue-700"></div>

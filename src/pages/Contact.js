@@ -1,14 +1,13 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import './styles.css';
 
 const Contact = () => {
   return (
     <div className="min-h-screen bg-bg-light text-primary-blue p-6">
-      <Helmet>
+     
         <title>Contactez QueueMaster</title>
         <meta name="description" content="Contactez l'équipe de QueueMaster pour toute question ou assistance." />
-      </Helmet>
+     
       <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center">Contactez-nous</h2>
       <div className="max-w-md mx-auto">
         <p className="mb-4">Pour toute question, contactez-nous via :</p>

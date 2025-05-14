@@ -8,7 +8,10 @@ pages:
     - npm install --legacy-peer-deps
     - CI=false NODE_OPTIONS=--max_old_space_size=4096 npm run build
     - cp build/index.html build/404.html
+    - echo -e "/* /index.html 200" > build/_redirects
     - mv build public
+    - ls -la public
+    - cat public/index.html
   artifacts:
     paths:
       - public
