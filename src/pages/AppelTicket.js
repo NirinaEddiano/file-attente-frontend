@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from '../utils/axiosConfig';
-import Chart from 'chart.js/auto';
 import 'ldrs/ring';
 import { Spiral } from 'ldrs/react';
 import './styles.css';
@@ -35,8 +34,8 @@ const AppelTicket = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [ticketFilter, setTicketFilter] = useState('attente');
   const [dateFilter, setDateFilter] = useState('');
-  const chartRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [activeSection, setActiveSection] = useState('gestion');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const wsRef = useRef(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -47,7 +46,6 @@ const AppelTicket = () => {
   const countdownTimerRef = useRef(null);
   const lastStatsFetch = useRef(0);
 
-  // Utiliser l'IP correcte pour le WebSocket
   const WS_BASE_URL = 'ws://192.168.137.123:8000';
 
   const handleApiError = (err, setError, defaultMessage) => {
@@ -130,39 +128,6 @@ const AppelTicket = () => {
         averageWaitTime: averageWaitTime.toFixed(1),
         satisfactionRate,
       });
-
-      if (chartRef.current) chartRef.current.destroy();
-      if (canvasRef.current) {
-        chartRef.current = new Chart(canvasRef.current, {
-          type: 'bar',
-          data: {
-            labels: ['Tickets Traités', 'Temps Moyen (min)', 'Satisfaction (%)'],
-            datasets: [
-              {
-                label: 'Statistiques',
-                data: [ticketsProcessedToday, averageWaitTime, satisfactionRate],
-                backgroundColor: [
-                  'rgba(54, 162, 235, 0.6)',
-                  'rgba(255, 206, 86, 0.6)',
-                  'rgba(75, 192, 192, 0.6)',
-                ],
-                borderColor: [
-                  'rgba(54, 162, 235, 1)',
-                  'rgba(255, 206, 86, 1)',
-                  'rgba(75, 192, 192, 1)',
-                ],
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            scales: {
-              y: { beginAtZero: true, title: { display: true, text: 'Valeur' } },
-            },
-            plugins: { legend: { display: false } },
-          },
-        });
-      }
     } catch (err) {
       console.error('Erreur lors du calcul des statistiques:', err);
     }
@@ -341,7 +306,6 @@ const AppelTicket = () => {
         wsRef.current.close(1000, 'Component unmounted');
       }
       clearInterval(countdownTimerRef.current);
-      if (chartRef.current) chartRef.current.destroy();
     };
   }, [token, navigate]);
 
@@ -399,7 +363,6 @@ const AppelTicket = () => {
             const ticket = data.ticket;
             const historyAction = data.history_action || ticket.statut;
 
-            // Gérer les tickets annulés
             if (ticket.statut === 'annule' || ticket.statut === 'absent') {
               setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
               setTreatedTickets((prev) => prev.filter((t) => t.id !== ticket.id));
@@ -410,7 +373,6 @@ const AppelTicket = () => {
                 clearInterval(countdownTimerRef.current);
               }
             } else {
-              // Mettre à jour les tickets en attente
               setTickets((prev) => {
                 let updatedTickets = prev.filter((t) => t.id !== ticket.id);
                 if (ticket.statut === 'attente') {
@@ -418,7 +380,6 @@ const AppelTicket = () => {
                 }
                 return updatedTickets.sort((a, b) => (a.position || 9999) - (b.position || 9999));
               });
-              // Mettre à jour les tickets traités
               setTreatedTickets((prev) => {
                 let updatedTreated = prev.filter((t) => t.id !== ticket.id);
                 if (ticket.statut === 'traite') {
@@ -428,7 +389,6 @@ const AppelTicket = () => {
               });
             }
 
-            // Mettre à jour l'historique
             setHistory((prev) => [
               {
                 id: Date.now(),
@@ -440,12 +400,10 @@ const AppelTicket = () => {
               ...prev.slice(0, 50),
             ]);
 
-            // Mettre à jour les statistiques si nécessaire
             if (['traite', 'annule', 'absent'].includes(ticket.statut)) {
               fetchStats(true);
             }
 
-            // Gérer le ticket actuel
             if (ticket.id === currentTicket?.id) {
               setIsPris(ticket.statut === 'traite');
               if (['absent', 'annule', 'traite'].includes(ticket.statut)) {
@@ -654,6 +612,11 @@ const AppelTicket = () => {
     }
   };
 
+  const toggleSidebar = () => {
+    console.log('Toggling sidebar, current state:', isSidebarOpen);
+  setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const statusColor = {
     attente: 'bg-yellow-100 text-yellow-700',
     traite: 'bg-green-100 text-green-700',
@@ -679,358 +642,420 @@ const AppelTicket = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-light">
-      <nav className="bg-white p-4 shadow-md flex justify-between items-center">
-        <div className="flex items-center">
-          <div>
-            <span className="text-lg font-semibold text-primary-blue">
-              Bonjour {userName} - Guichet {guichet?.number || 'N/A'}
-            </span>
-            <p className="text-sm text-gray-600">{new Date().toLocaleDateString()}</p>
-          </div>
+    <div className="min-h-screen flex">
+      <aside className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
+        <div className="mb-6">
+          <span className="text-lg font-semibold text-primary-blue">
+            Bonjour {userName} - Guichet {guichet?.number || 'N/A'}
+          </span>
+          <p className="text-sm text-gray-600">{new Date().toLocaleDateString()}</p>
         </div>
+        <nav className="flex-1">
+          <button
+            onClick={() => setActiveSection('gestion')}
+            className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+              activeSection === 'gestion' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <i className="fas fa-users mr-2"></i> Gestion File d'Attente
+          </button>
+          <button
+            onClick={() => setActiveSection('statistiques')}
+            className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+              activeSection === 'statistiques' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <i className="fas fa-chart-bar mr-2"></i> Statistiques
+          </button>
+          <button
+            onClick={() => setActiveSection('historique')}
+            className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+              activeSection === 'historique' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <i className="fas fa-history mr-2"></i> Historique des Activités
+          </button>
+        </nav>
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center"
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center mt-auto"
         >
           <i className="fas fa-sign-out-alt mr-2"></i> Déconnexion
         </button>
-      </nav>
-      <main className="p-8 max-w-7xl mx-auto">
-        {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 animate-slide-in flex items-center">
-            <i className="fas fa-exclamation-triangle mr-2"></i> {error}
-          </div>
-        )}
-        {guichet ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              <div className="card gold-border mb-8 animate-slide-in">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h1 className="text-2xl font-semibold text-primary-blue flex items-center">
-                      <i className="fas fa-desktop mr-2 text-accent-gold animate-pulse"></i>
-                      Guichet {guichet.number}
-                    </h1>
-                    <p className="text-gray-600">{guichet.service?.name || 'Service non défini'}</p>
-                  </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      status === 'open'
-                        ? 'bg-green-100 text-green-700'
-                        : status === 'paused'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {status === 'open' ? 'Ouvert' : status === 'paused' ? 'En pause' : 'Fermé'}
-                  </span>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => toggleGuichet('open')}
-                    className={`flex-1 ${
-                      status === 'open' ? 'bg-gray-300' : 'bg-green-500 hover:bg-green-600'
-                    } text-white px-4 py-2 rounded flex items-center justify-center`}
-                    disabled={status === 'open'}
-                  >
-                    <i className="fas fa-lock-open mr-2"></i> Ouvrir
-                  </button>
-                  <button
-                    onClick={() => toggleGuichet('paused')}
-                    className={`flex-1 ${
-                      status === 'paused' ? 'bg-gray-300' : 'bg-yellow-500 hover:bg-yellow-600'
-                    } text-white px-4 py-2 rounded flex items-center justify-center`}
-                    disabled={status === 'paused'}
-                  >
-                    <i className="fas fa-pause mr-2"></i> Pause
-                  </button>
-                  <button
-                    onClick={() => toggleGuichet('closed')}
-                    className={`flex-1 ${
-                      status === 'closed' ? 'bg-gray-300' : 'bg-red-500 hover:bg-red-600'
-                    } text-white px-4 py-2 rounded flex items-center justify-center`}
-                    disabled={status === 'closed'}
-                  >
-                    <i className="fas fa-lock mr-2"></i> Fermer
-                  </button>
-                </div>
-              </div>
+      </aside>
 
-              <div className="card gold-border mb-8 animate-slide-in">
-                <h2 className="text-xl font-semibold text-primary-blue mb-4">Client Actuel</h2>
-                {currentTicket ? (
-                  <div className="text-center">
-                    <p className="text-5xl font-bold text-primary-blue mb-4">
-                      {currentTicket.numero}
-                    </p>
-                    {countdown !== null && (
-                      <p className="text-red-600 mb-4">
-                        Temps restant: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
-                      </p>
-                    )}
-                    <div className="flex justify-center space-x-4">
-                      {!isPris ? (
-                        <>
-                          <button
-                            onClick={() => callTicket(currentTicket.id)}
-                            className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
-                            disabled
-                          >
-                            <i className="fas fa-bullhorn mr-2"></i> Appeler
-                          </button>
-                          <button
-                            onClick={markPris}
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center"
-                          >
-                            <i className="fas fa-check mr-2"></i> Traité
-                          </button>
-                        </>
-                      ) : (
-                        <></>
-                      )}
-                      <button
-                        onClick={() => markAbsent(currentTicket.id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center"
+      <div className="flex-1 flex flex-col" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
+        <header className="headers">
+          <button className="hamburger md:hidden" onClick={(e) => {
+            e.stopPropagation(); 
+            toggleSidebar();
+          }} aria-expanded={isSidebarOpen} aria-label={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}>
+            <i className={`fas ${isSidebarOpen ? 'fa-times' : 'fa-bars'} text-2xl text-primary-blue`}></i>
+          </button>
+        </header>
+        <main className="main">
+          {error && (
+            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 animate-slide-in flex items-center">
+              <i className="fas fa-exclamation-triangle mr-2"></i> {error}
+            </div>
+          )} 
+          {guichet ? (
+            <div className="max-w-7xl mx-auto">
+              {activeSection === 'gestion' && (
+                <div className="space-y-8">
+                  <div className="card gold-border animate-slide-in">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h1 className="text-2xl font-semibold text-primary-blue flex items-center">
+                          <i className="fas fa-desktop mr-2 text-accent-gold animate-pulse"></i>
+                          Guichet {guichet.number}
+                        </h1>
+                        <p className="text-gray-600">{guichet.service?.name || 'Service non défini'}</p>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          status === 'open'
+                            ? 'bg-green-100 text-green-700'
+                            : status === 'paused'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
                       >
-                        <i className="fas fa-user-times mr-2"></i> Absent
+                        {status === 'open' ? 'Ouvert' : status === 'paused' ? 'En pause' : 'Fermé'}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => toggleGuichet('open')}
+                        className={`flex-1 ${
+                          status === 'open' ? 'bg-gray-300' : 'bg-green-500 hover:bg-green-600'
+                        } text-white px-4 py-2 rounded flex items-center justify-center`}
+                        disabled={status === 'open'}
+                      >
+                        <i className="fas fa-lock-open mr-2"></i> Ouvrir
+                      </button>
+                      <button
+                        onClick={() => toggleGuichet('paused')}
+                        className={`flex-1 ${
+                          status === 'paused' ? 'bg-gray-300' : 'bg-yellow-500 hover:bg-yellow-600'
+                        } text-white px-4 py-2 rounded flex items-center justify-center`}
+                        disabled={status === 'paused'}
+                      >
+                        <i className="fas fa-pause mr-2"></i> Pause
+                      </button>
+                      <button
+                        onClick={() => toggleGuichet('closed')}
+                        className={`flex-1 ${
+                          status === 'closed' ? 'bg-gray-300' : 'bg-red-500 hover:bg-red-600'
+                        } text-white px-4 py-2 rounded flex items-center justify-center`}
+                        disabled={status === 'closed'}
+                      >
+                        <i className="fas fa-lock mr-2"></i> Fermer
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-5xl font-bold text-gray-400 mb-4">---</p>
-                    <button
-                      onClick={() => callTicket()}
-                      className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center mx-auto"
-                      disabled={status !== 'open' || tickets.length === 0}
-                    >
-                      <i className="fas fa-bullhorn mr-2"></i> Appeler suivant
-                    </button>
-                  </div>
-                )}
-                {treatedTickets.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold text-primary-blue mb-2">Tickets Traités</h3>
-                    <div className="space-y-2">
-                      {treatedTickets.map((ticket) => (
-                        <div key={ticket.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
-                          <span>{ticket.numero} - {ticket.service?.name}</span>
+
+                  <div className="card gold-border animate-slide-in">
+                    <h2 className="text-xl font-semibold text-primary-blue mb-4">Client Actuel</h2>
+                    {currentTicket ? (
+                      <div className="text-center">
+                        <p className="text-5xl font-bold text-primary-blue mb-4">
+                          {currentTicket.numero}
+                        </p>
+                        {countdown !== null && (
+                          <p className="text-red-600 mb-4">
+                            Temps restant: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                          </p>
+                        )}
+                        <div className="flex justify-center space-x-4">
+                          {!isPris ? (
+                            <>
+                              <button
+                                onClick={() => callTicket(currentTicket.id)}
+                                className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+                                disabled
+                              >
+                                <i className="fas fa-bullhorn mr-2"></i> Appeler
+                              </button>
+                              <button
+                                onClick={markPris}
+                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center"
+                              >
+                                <i className="fas fa-check mr-2"></i> Traité
+                              </button>
+                            </>
+                          ) : (
+                            <></>
+                          )}
                           <button
-                            onClick={() => deleteTicket(ticket.id)}
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                            onClick={() => markAbsent(currentTicket.id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center"
                           >
-                            Supprimer
+                            <i className="fas fa-user-times mr-2"></i> Absent
                           </button>
                         </div>
-                      ))}
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <p className="text-5xl font-bold text-gray-400 mb-4">---</p>
+                        <button
+                          onClick={() => callTicket()}
+                          className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center mx-auto"
+                          disabled={status !== 'open' || tickets.length === 0}
+                        >
+                          <i className="fas fa-bullhorn mr-2"></i> Appeler suivant
+                        </button>
+                      </div>
+                    )}
+                    {treatedTickets.length > 0 && (
+                      <div className="mt-4">
+                        <h3 className="text-lg font-semibold text-primary-blue mb-2">Tickets Traités</h3>
+                        <div className="space-y-2">
+                          {treatedTickets.map((ticket) => (
+                            <div key={ticket.id} className="flex justify-between items-center p-2 bg-green-50 rounded">
+                              <span>{ticket.numero} - {ticket.service?.name}</span>
+                              <button
+                                onClick={() => deleteTicket(ticket.id)}
+                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                              >
+                                Supprimer
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="card gold-border animate-slide-in">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold text-primary-blue">Liste des Tickets</h2>
+                      <div className="flex space-x-2">
+                        <select
+                          value={ticketFilter}
+                          onChange={(e) => setTicketFilter(e.target.value)}
+                          className="border rounded px-2 py-1"
+                        >
+                          <option value="attente">En attente</option>
+                          <option value="absent">Absent</option>
+                          <option value="annule">Annulé</option>
+                        </select>
+                        <button
+                          onClick={refreshData}
+                          className="bg-primary-blue text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center"
+                        >
+                          <i className="fas fa-sync-alt mr-2"></i> Actualiser
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="card gold-border mb-8 animate-slide-in">
-                <h2 className="text-xl font-semibold text-primary-blue mb-4">Statistiques</h2>
-                <canvas ref={canvasRef} className="w-full h-64"></canvas>
-                <div className="mt-4 text-gray-600">
-                  <p>Tickets traités aujourd’hui: {stats.ticketsProcessedToday}</p>
-                  <p>Temps d’attente moyen: {stats.averageWaitTime} min</p>
-                  <p>Taux de satisfaction: {stats.satisfactionRate}%</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-2">
-              <div className="card gold-border mb-8 animate-slide-in">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-primary-blue">Liste des Tickets</h2>
-                  <div className="flex space-x-2">
-                    <select
-                      value={ticketFilter}
-                      onChange={(e) => setTicketFilter(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    >
-                      <option value="attente">En attente</option>
-                      <option value="absent">Absent</option>
-                      <option value="annule">Annulé</option>
-                    </select>
-                    <button
-                      onClick={refreshData}
-                      className="bg-primary-blue text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center"
-                    >
-                      <i className="fas fa-sync-alt mr-2"></i> Actualiser
-                    </button>
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="p-2">Numéro</th>
-                        <th className="p-2">Position</th>
-                        <th className="p-2">Service</th>
-                        <th className="p-2">Statut</th>
-                        <th className="p-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tickets.length > 0 ? (
-                        tickets.map((ticket) => (
-                          <tr key={ticket.id} className="border-b">
-                            <td className="p-2">{ticket.numero}</td>
-                            <td className="p-2">{ticket.position ? `${ticket.position}e` : '-'}</td>
-                            <td className="p-2">{ticket.service?.name}</td>
-                            <td className="p-2">
-                              <span className={`px-2 py-1 rounded ${statusColor[ticket.statut]}`}>
-                                {ticket.statut}
-                              </span>
-                            </td>
-                            <td className="p-2">
-                              {ticket.statut === 'attente' && (
-                                <button
-                                  onClick={() => callTicket(ticket.id)}
-                                  className="bg-primary-blue text-white px-2 py-1 rounded hover:bg-blue-700"
-                                  disabled={status !== 'open'}
-                                >
-                                  Appeler
-                                </button>
-                              )}
-                            </td>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="p-2">Numéro</th>
+                            <th className="p-2">Position</th>
+                            <th className="p-2">Service</th>
+                            <th className="p-2">Statut</th>
+                            <th className="p-2">Actions</th>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="5" className="p-2 text-center text-gray-500">
-                            Aucun ticket disponible
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="card gold-border mb-8 animate-slide-in">
-                <h2 className="text-xl font-semibold text-primary-blue mb-4">Notifications</h2>
-                <div className="mb-4">
-                  <textarea
-                    value={broadcastMessage}
-                    onChange={(e) => setBroadcastMessage(e.target.value)}
-                    placeholder="Message à diffuser à tous les clients..."
-                    className="w-full p-2 border rounded"
-                    rows="3"
-                  ></textarea>
-                  <button
-                    onClick={sendBroadcastNotification}
-                    className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
-                  >
-                    <i className="fas fa-bullhorn mr-2"></i> Diffuser
-                  </button>
-                </div>
-                <div>
-                  <select
-                    value={specificTicketId}
-                    onChange={(e) => setSpecificTicketId(e.target.value)}
-                    className="w-full p-2 border rounded mb-2"
-                  >
-                    <option value="">Sélectionner un ticket</option>
-                    {tickets
-                      .filter((t) => t.statut === 'attente')
-                      .map((ticket) => (
-                        <option key={ticket.id} value={ticket.id}>
-                          {ticket.numero}
-                        </option>
-                      ))}
-                  </select>
-                  <textarea
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    placeholder="Message personnalisé pour le ticket sélectionné..."
-                    className="w-full p-2 border rounded"
-                    rows="3"
-                  ></textarea>
-                  <button
-                    onClick={sendSpecificNotification}
-                    className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
-                  >
-                    <i className="fas fa-envelope mr-2"></i> Envoyer
-                  </button>
-                </div>
-              </div>
-
-              <div className="card gold-border animate-slide-in">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-primary-blue">Historique</h2>
-                  <div className="flex space-x-2 items-center">
-                    <input
-                      type="date"
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    />
-                    <button
-                      onClick={() => setDateFilter('')}
-                      className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400 flex items-center"
-                    >
-                      <i className="fas fa-times mr-2"></i> Réinitialiser
-                    </button>
-                    <button
-                      onClick={() => setShowHistory(!showHistory)}
-                      className="text-primary-blue hover:underline flex items-center"
-                    >
-                      {showHistory ? (
-                        <>
-                          <i className="fas fa-eye-slash mr-2"></i> Masquer
-                        </>
-                      ) : (
-                        <>
-                          <i className="fas fa-eye mr-2"></i> Afficher
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-                {showHistory && (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="p-2">Ticket</th>
-                          <th className="p-2">Action</th>
-                          <th className="p-2">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredHistory.length > 0 ? (
-                          filteredHistory.map((entry) => (
-                            <tr key={entry.id} className="border-b">
-                              <td className="p-2">{entry.ticket_numero}</td>
-                              <td className="p-2">{entry.action}</td>
-                              <td className="p-2">
-                                {new Date(entry.created_at).toLocaleString()}
+                        </thead>
+                        <tbody>
+                          {tickets.length > 0 ? (
+                            tickets.map((ticket) => (
+                              <tr key={ticket.id} className="border-b">
+                                <td className="p-2">{ticket.numero}</td>
+                                <td className="p-2">{ticket.position ? `${ticket.position}e` : '-'}</td>
+                                <td className="p-2">{ticket.service?.name}</td>
+                                <td className="p-2">
+                                  <span className={`px-2 py-1 rounded ${statusColor[ticket.statut]}`}>
+                                    {ticket.statut}
+                                  </span>
+                                </td>
+                                <td className="p-2">
+                                  {ticket.statut === 'attente' && (
+                                    <button
+                                      onClick={() => callTicket(ticket.id)}
+                                      className="bg-primary-blue text-white px-2 py-1 rounded hover:bg-blue-700"
+                                      disabled={status !== 'open'}
+                                    >
+                                      Appeler
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="5" className="p-2 text-center text-gray-500">
+                                Aucun ticket disponible
                               </td>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="3" className="p-2 text-center text-gray-500">
-                              Aucun historique disponible pour cette date
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                )}
-              </div>
+
+                  <div className="card gold-border animate-slide-in">
+                    <h2 className="text-xl font-semibold text-primary-blue mb-4">Notifications</h2>
+                    <div className="mb-4">
+                      <textarea
+                        value={broadcastMessage}
+                        onChange={(e) => setBroadcastMessage(e.target.value)}
+                        placeholder="Message à diffuser à tous les clients..."
+                        className="w-full p-2 border rounded"
+                        rows="3"
+                      ></textarea>
+                      <button
+                        onClick={sendBroadcastNotification}
+                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
+                      >
+                        <i className="fas fa-bullhorn mr-2"></i> Diffuser
+                      </button>
+                    </div>
+                    <div>
+                      <select
+                        value={specificTicketId}
+                        onChange={(e) => setSpecificTicketId(e.target.value)}
+                        className="w-full p-2 border rounded mb-2"
+                      >
+                        <option value="">Sélectionner un ticket</option>
+                        {tickets
+                          .filter((t) => t.statut === 'attente')
+                          .map((ticket) => (
+                            <option key={ticket.id} value={ticket.id}>
+                              {ticket.numero}
+                            </option>
+                          ))}
+                      </select>
+                      <textarea
+                        value={customMessage}
+                        onChange={(e) => setCustomMessage(e.target.value)}
+                        placeholder="Message personnalisé pour le ticket sélectionné..."
+                        className="w-full p-2 border rounded"
+                        rows="3"
+                      ></textarea>
+                      <button
+                        onClick={sendSpecificNotification}
+                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
+                      >
+                        <i className="fas fa-envelope mr-2"></i> Envoyer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === 'statistiques' && (
+                <div className="card gold-border animate-slide-in">
+                  <h2 className="text-xl font-semibold text-primary-blue mb-4">Statistiques</h2>
+                  <div className="text-gray-600 mb-6">
+                    <p className="mb-2">
+                      <strong>Tickets Traités Aujourd’hui:</strong> {stats.ticketsProcessedToday}
+                    </p>
+                    <p className="mb-2">
+                      Cette statistique montre le nombre total de tickets que vous avez traités aujourd’hui. Chaque ticket traité est enregistré dans l’historique dès que vous le marquez comme "Traité". Un nombre élevé indique une journée productive, mais veillez à maintenir un bon équilibre pour éviter la fatigue.
+                    </p>
+                    <p className="mb-2">
+                      <strong>Temps d’Attente Moyen:</strong> {stats.averageWaitTime} minutes
+                    </p>
+                    <p className="mb-2">
+                      Le temps d’attente moyen est calculé en mesurant la durée entre le moment où un ticket est appelé et le moment où il est marqué comme traité. Une valeur faible indique une gestion efficace de la file d’attente, ce qui améliore l’expérience client. Si ce temps est trop élevé, envisagez d’optimiser vos processus ou d’ajuster les priorités des tickets.
+                    </p>
+                    <p className="mb-2">
+                      <strong>Taux de Satisfaction:</strong> {stats.satisfactionRate}%
+                    </p>
+                    <p>
+                      Le taux de satisfaction est une estimation basée sur des données historiques et des retours clients. Un taux élevé reflète une bonne qualité de service. Si ce taux diminue, il peut être utile de revoir les temps d’attente ou d’améliorer la communication avec les clients via des notifications personnalisées.
+                    </p>
+                  </div>
+                  <div className="mt-4 text-gray-600">
+                    <p className="font-semibold">Conseils pour Améliorer Vos Performances:</p>
+                    <ul className="list-disc list-inside space-y-1 mt-2">
+                      <li>Utilisez les notifications pour informer les clients des retards ou des changements.</li>
+                      <li>Passez en mode "Pause" si vous avez besoin d’une courte interruption pour maintenir votre efficacité.</li>
+                      <li>Analysez les pics d’activité pour mieux répartir votre charge de travail.</li>
+                      <li>Consultez l’historique pour identifier les tendances et ajuster vos méthodes.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === 'historique' && (
+                <div className="card gold-border animate-slide-in">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold text-primary-blue">Historique</h2>
+                    <div className="flex space-x-2 items-center">
+                      <input
+                        type="date"
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                        className="border rounded px-2 py-1"
+                      />
+                      <button
+                        onClick={() => setDateFilter('')}
+                        className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400 flex items-center"
+                      >
+                        <i className="fas fa-times mr-2"></i> Réinitialiser
+                      </button>
+                      <button
+                        onClick={() => setShowHistory(!showHistory)}
+                        className="text-primary-blue hover:underline flex items-center"
+                      >
+                        {showHistory ? (
+                          <>
+                            <i className="fas fa-eye-slash mr-2"></i> Masquer
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-eye mr-2"></i> Afficher
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {showHistory && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="p-2">Ticket</th>
+                            <th className="p-2">Action</th>
+                            <th className="p-2">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredHistory.length > 0 ? (
+                            filteredHistory.map((entry) => (
+                              <tr key={entry.id} className="border-b">
+                                <td className="p-2">{entry.ticket_numero}</td>
+                                <td className="p-2">{entry.action}</td>
+                                <td className="p-2">
+                                  {new Date(entry.created_at).toLocaleString()}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="3" className="p-2 text-center text-gray-500">
+                                Aucun historique disponible pour cette date
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-            Chargement des données du guichet...
-          </div>
-        )}
-      </main>
+          ) : (
+            <div className="text-center text-gray-500">
+              Chargement des données du guichet...
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

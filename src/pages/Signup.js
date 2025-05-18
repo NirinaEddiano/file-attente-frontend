@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import fourPeopleWithClock from '../assets/images/four_people_with_clock.png';
 import './styles.css';
 
 const Signup = () => {
@@ -32,15 +34,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center signup-section relative">
-      <div className="signup-background">
-        <img
-          src="/images/four_people_with_clock.png"
-          alt="Illustration d'une longue file d'attente droite devant une banque moderne"
-          className="w-full h-full object-cover opacity-50"
-        />
-      </div>
-      <div className="card gold-border w-full max-w-md animate-slide-in relative z-10">
+    <div className="min-h-screen flex items-center justify-center section-bg relative">
+      
+      <Link to="/" className="back-button" aria-label="Retour à la page d'accueil">Retour</Link>
+      <div className="card w-full max-w-md animate-slide-in relative z-10">
         <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center flex items-center">
           <i className="fas fa-user-plus mr-2 text-accent-gold animate-pulse"></i> Inscription Client
         </h2>
@@ -70,11 +67,8 @@ const Signup = () => {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="cta-button w-full"
-          >
-            S’inscrire
+          <button type="submit" className="cta-button w-full" aria-label="S'inscrire">
+            <FontAwesomeIcon icon="fa-solid fa-user-plus" className="mr-2" /> S’inscrire
           </button>
         </form>
         <p className="mt-4 text-center text-gray-600">

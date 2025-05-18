@@ -16,10 +16,13 @@ import DemoPage from './pages/Demopage';
 import AddGuichet from './pages/AddGuichet';
 import EditGuichet from './pages/EditGuichet';
 import Contact from './pages/Contact';
+import PourquoiQueueMaster from './pages/PourquoiQueueMaster';
+import NosPartenaires from './pages/NosPartenaires';
+import FAQ from './pages/FAQ';
 
 function App() {
   return (
-    <Router basename="/file-attente-frontend/">
+    <Router>
       <Routes>
         <Route path="/" element={<Vitrine />} />
         <Route path="/signup" element={<Signup />} />
@@ -35,6 +38,9 @@ function App() {
         <Route path="/admin/guichets/add" element={<AddGuichet />} />
         <Route path="/admin/guichets/edit/:guichetId" element={<EditGuichet />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/Pourquoi-QueueMaster" element={<PourquoiQueueMaster />} />
+        <Route path="/Nos-Partenaires" element={<NosPartenaires />} />
+        <Route path="/FAQ" element={<FAQ />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
     </Router>
