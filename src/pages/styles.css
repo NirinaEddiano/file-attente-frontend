@@ -2099,11 +2099,34 @@ button, input {
   }
 }
 
+.w-full {
+  color: black;
+}
 
+:root {
+  --primary-blue: #1e3a8a;
+  --accent-gold: #facc15;
+  --accent-turquoise: #2dd4bf;
+  --bg-light: #f3f4f6;
+}
 
+.bg-primary-blue { background-color: var(--primary-blue); }
+.text-primary-blue { color: var(--primary-blue); }
+.bg-accent-gold { background-color: var(--accent-gold); }
+.text-accent-gold { color: var(--accent-gold); }
+.bg-accent-turquoise { background-color: var(--accent-turquoise); }
+.text-accent-turquoise { color: var(--accent-turquoise); }
+.bg-bg-light { background-color: var(--bg-light); }
 
+.gold-border {
+  border: 2px solid var(--accent-gold);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-
+.gold-border:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
 
 .card {
   background: white;
