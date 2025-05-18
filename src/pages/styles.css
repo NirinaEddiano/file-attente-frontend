@@ -2110,6 +2110,7 @@ button, input {
   --bg-light: #f3f4f6;
 }
 
+.bg-red-50{background-color: red;}
 .bg-primary-blue { background-color: var(--primary-blue); }
 .text-primary-blue { color: var(--primary-blue); }
 .bg-accent-gold { background-color: var(--accent-gold); }
