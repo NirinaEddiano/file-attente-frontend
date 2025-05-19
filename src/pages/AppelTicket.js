@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from '../utils/axiosConfig';
+import Chart from 'chart.js/auto';
 import 'ldrs/ring';
 import { Spiral } from 'ldrs/react';
 import './styles.css';
@@ -27,7 +29,7 @@ const AppelTicket = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userName, setUserName] = useState('');
   const [stats, setStats] = useState({
-    ticketsProcessedToday: 0,
+    ticketsProcessed: 0,
     averageWaitTime: 0,
     satisfactionRate: 0,
   });
@@ -35,8 +37,11 @@ const AppelTicket = () => {
   const [ticketFilter, setTicketFilter] = useState('attente');
   const [dateFilter, setDateFilter] = useState('');
   const [activeSection, setActiveSection] = useState('gestion');
+  const [activeSousSection, setActiveSousSection] = useState('journaliere');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const wsRef = useRef(null);
+  const chartRef = useRef(null);
+  const canvasRef = useRef(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const reconnectInterval = useRef(5000);
@@ -44,9 +49,8 @@ const AppelTicket = () => {
   const isMounted = useRef(true);
   const connectionLock = useRef(false);
   const countdownTimerRef = useRef(null);
-  const lastStatsFetch = useRef(0);
 
-  const WS_BASE_URL = 'ws://192.168.137.123:8000';
+  const WS_BASE_URL = 'ws://localhost:8000';
 
   const handleApiError = (err, setError, defaultMessage) => {
     const message = err.response?.data?.error || defaultMessage;
@@ -86,22 +90,35 @@ const AppelTicket = () => {
     navigate('/');
   };
 
-  const fetchStats = async (force = false) => {
-    const now = Date.now();
-    if (!force && now - lastStatsFetch.current < 60000) return;
-    lastStatsFetch.current = now;
+  const fetchStats = async (period = 'journaliere') => {
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const historyResponse = await axios.get('/api/guichet/history/', {
+      const today = new Date();
+      let startDate, endDate;
+
+      if (period === 'journaliere') {
+        startDate = today.toISOString().split('T')[0];
+        endDate = startDate;
+      } else if (period === 'hebdomadaire') {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startDate = startOfWeek.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+      } else if (period === 'mensuelle') {
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+      }
+
+      const historyResponse = await axios.get('/api/stats/', {
+        params: { period, start_date: startDate, end_date: endDate },
         headers: { Authorization: `Bearer ${token}` },
       });
       const history = historyResponse.data;
 
-      const ticketsProcessedToday = history.filter(
-        (entry) =>
-          entry.action === 'traite' &&
-          new Date(entry.created_at).toISOString().split('T')[0] === today
-      ).length;
+      if (!Array.isArray(history)) {
+        throw new Error('Réponse inattendue: les données historiques ne sont pas un tableau');
+      }
+
+      const ticketsProcessed = history.filter((entry) => entry.action === 'traite').length;
 
       const processedTickets = history.filter((entry) => entry.action === 'traite');
       const waitTimes = [];
@@ -124,10 +141,43 @@ const AppelTicket = () => {
       const satisfactionRate = 92;
 
       setStats({
-        ticketsProcessedToday,
+        ticketsProcessed,
         averageWaitTime: averageWaitTime.toFixed(1),
         satisfactionRate,
       });
+
+      if (chartRef.current) chartRef.current.destroy();
+      if (canvasRef.current) {
+        chartRef.current = new Chart(canvasRef.current, {
+          type: 'bar',
+          data: {
+            labels: ['Tickets Traités', 'Temps Moyen (min)', 'Satisfaction (%)'],
+            datasets: [
+              {
+                label: 'Statistiques',
+                data: [ticketsProcessed, averageWaitTime, satisfactionRate],
+                backgroundColor: [
+                  'rgba(54, 162, 235, 0.6)',
+                  'rgba(255, 206, 86, 0.6)',
+                  'rgba(75, 192, 192, 0.6)',
+                ],
+                borderColor: [
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true, title: { display: true, text: 'Valeur' } },
+            },
+            plugins: { legend: { display: false } },
+          },
+        });
+      }
     } catch (err) {
       console.error('Erreur lors du calcul des statistiques:', err);
     }
@@ -217,8 +267,7 @@ const AppelTicket = () => {
           .sort((a, b) => (a.position || 9999) - (b.position || 9999))
       );
       setHistory(historyResponse.data);
-      await fetchStats();
-      toast.success('Données actualisées.');
+      await fetchStats(activeSousSection);
     } catch (err) {
       handleApiError(err, setError, 'Erreur lors de l’actualisation des données');
     }
@@ -315,6 +364,12 @@ const AppelTicket = () => {
   }, [guichet, token, ticketFilter]);
 
   useEffect(() => {
+    if (activeSection === 'statistiques') {
+      fetchStats(activeSousSection);
+    }
+  }, [activeSection, activeSousSection]);
+
+  useEffect(() => {
     if (!guichet || !token || !isMounted.current) return;
 
     const connectWebSocket = async () => {
@@ -401,7 +456,7 @@ const AppelTicket = () => {
             ]);
 
             if (['traite', 'annule', 'absent'].includes(ticket.statut)) {
-              fetchStats(true);
+              fetchStats(activeSousSection);
             }
 
             if (ticket.id === currentTicket?.id) {
@@ -431,7 +486,7 @@ const AppelTicket = () => {
               setCountdown(null);
               setIsPris(false);
               clearInterval(countdownTimerRef.current);
-              fetchStats(true);
+              fetchStats(activeSousSection);
             }
           } else if (data.type === 'guichet_update') {
             setStatus(data.guichet.status);
@@ -575,7 +630,7 @@ const AppelTicket = () => {
       toast.success(`Ticket ${currentTicket.numero} marqué comme traité`);
       setCurrentTicket(null);
       setError('');
-      fetchStats(true);
+      fetchStats(activeSousSection);
     } catch (err) {
       handleApiError(err, setError, 'Erreur lors du marquage comme traité');
     }
@@ -606,15 +661,14 @@ const AppelTicket = () => {
       }
       toast.success(`Ticket marqué comme absent`);
       setError('');
-      fetchStats(true);
+      fetchStats(activeSousSection);
     } catch (err) {
       handleApiError(err, setError, 'Erreur lors du marquage comme absent');
     }
   };
 
   const toggleSidebar = () => {
-    console.log('Toggling sidebar, current state:', isSidebarOpen);
-  setIsSidebarOpen(!isSidebarOpen);
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const statusColor = {
@@ -660,13 +714,49 @@ const AppelTicket = () => {
             <i className="fas fa-users mr-2"></i> Gestion File d'Attente
           </button>
           <button
+            onClick={() => setActiveSection('messages')}
+            className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+              activeSection === 'messages' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <i className="fas fa-envelope mr-2"></i> Notifier les clients
+          </button>
+          <button
             onClick={() => setActiveSection('statistiques')}
             className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
               activeSection === 'statistiques' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <i className="fas fa-chart-bar mr-2"></i> Statistiques
+            <i className="fas fa-chart-bar mr-2"></i> Statistiques 
           </button>
+          {activeSection === 'statistiques' && (
+            <div className="ml-4">
+              <button
+                onClick={() => setActiveSousSection('journaliere')}
+                className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+                  activeSousSection === 'journaliere' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Journalière
+              </button>
+              <button
+                onClick={() => setActiveSousSection('hebdomadaire')}
+                className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+                  activeSousSection === 'hebdomadaire' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Hebdomadaire
+              </button>
+              <button
+                onClick={() => setActiveSousSection('mensuelle')}
+                className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
+                  activeSousSection === 'mensuelle' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Mensuelle
+              </button>
+            </div>
+          )}
           <button
             onClick={() => setActiveSection('historique')}
             className={`w-full text-left px-4 py-2 mb-2 rounded-lg flex items-center transition-colors ${
@@ -687,7 +777,7 @@ const AppelTicket = () => {
       <div className="flex-1 flex flex-col" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <header className="headers">
           <button className="hamburger md:hidden" onClick={(e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             toggleSidebar();
           }} aria-expanded={isSidebarOpen} aria-label={isSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}>
             <i className={`fas ${isSidebarOpen ? 'fa-times' : 'fa-bars'} text-2xl text-primary-blue`}></i>
@@ -698,7 +788,7 @@ const AppelTicket = () => {
             <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 animate-slide-in flex items-center">
               <i className="fas fa-exclamation-triangle mr-2"></i> {error}
             </div>
-          )} 
+          )}
           {guichet ? (
             <div className="max-w-7xl mx-auto">
               {activeSection === 'gestion' && (
@@ -895,53 +985,56 @@ const AppelTicket = () => {
                       </table>
                     </div>
                   </div>
+                </div>
+              )}
 
-                  <div className="card gold-border animate-slide-in">
-                    <h2 className="text-xl font-semibold text-primary-blue mb-4">Notifications</h2>
-                    <div className="mb-4">
-                      <textarea
-                        value={broadcastMessage}
-                        onChange={(e) => setBroadcastMessage(e.target.value)}
-                        placeholder="Message à diffuser à tous les clients..."
-                        className="w-full p-2 border rounded"
-                        rows="3"
-                      ></textarea>
-                      <button
-                        onClick={sendBroadcastNotification}
-                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
-                      >
-                        <i className="fas fa-bullhorn mr-2"></i> Diffuser
-                      </button>
-                    </div>
-                    <div>
-                      <select
-                        value={specificTicketId}
-                        onChange={(e) => setSpecificTicketId(e.target.value)}
-                        className="w-full p-2 border rounded mb-2"
-                      >
-                        <option value="">Sélectionner un ticket</option>
-                        {tickets
-                          .filter((t) => t.statut === 'attente')
-                          .map((ticket) => (
-                            <option key={ticket.id} value={ticket.id}>
-                              {ticket.numero}
-                            </option>
-                          ))}
-                      </select>
-                      <textarea
-                        value={customMessage}
-                        onChange={(e) => setCustomMessage(e.target.value)}
-                        placeholder="Message personnalisé pour le ticket sélectionné..."
-                        className="w-full p-2 border rounded"
-                        rows="3"
-                      ></textarea>
-                      <button
-                        onClick={sendSpecificNotification}
-                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
-                      >
-                        <i className="fas fa-envelope mr-2"></i> Envoyer
-                      </button>
-                    </div>
+              {activeSection === 'messages' && (
+                <div className="card gold-border animate-slide-in">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-primary-blue mb-2">Notification Générale</h3>
+                    <textarea
+                      value={broadcastMessage}
+                      onChange={(e) => setBroadcastMessage(e.target.value)}
+                      placeholder="Message à diffuser à tous les clients..."
+                      className="w-full p-2 border rounded"
+                      rows="3"
+                    ></textarea>
+                    <button
+                      onClick={sendBroadcastNotification}
+                      className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
+                    >
+                      <i className="fas fa-bullhorn mr-2"></i> Diffuser
+                    </button>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary-blue mb-2">Notification Spécifique</h3>
+                    <select
+                      value={specificTicketId}
+                      onChange={(e) => setSpecificTicketId(e.target.value)}
+                      className="w-full p-2 border rounded mb-2"
+                    >
+                      <option value="">Sélectionner un ticket</option>
+                      {tickets
+                        .filter((t) => t.statut === 'attente')
+                        .map((ticket) => (
+                          <option key={ticket.id} value={ticket.id}>
+                            {ticket.numero}
+                          </option>
+                        ))}
+                    </select>
+                    <textarea
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      placeholder="Message personnalisé pour le ticket sélectionné..."
+                      className="w-full p-2 border rounded"
+                      rows="3"
+                    ></textarea>
+                    <button
+                      onClick={sendSpecificNotification}
+                      className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 flex items-center"
+                    >
+                      <i className="fas fa-envelope mr-2"></i> Envoyer
+                    </button>
                   </div>
                 </div>
               )}
@@ -949,33 +1042,42 @@ const AppelTicket = () => {
               {activeSection === 'statistiques' && (
                 <div className="card gold-border animate-slide-in">
                   <h2 className="text-xl font-semibold text-primary-blue mb-4">Statistiques</h2>
+                  <canvas ref={canvasRef} className="w-full h-64 mb-4"></canvas>
                   <div className="text-gray-600 mb-6">
                     <p className="mb-2">
-                      <strong>Tickets Traités Aujourd’hui:</strong> {stats.ticketsProcessedToday}
+                      <strong>Tickets Traités: </strong> {stats.ticketsProcessed}
                     </p>
                     <p className="mb-2">
-                      Cette statistique montre le nombre total de tickets que vous avez traités aujourd’hui. Chaque ticket traité est enregistré dans l’historique dès que vous le marquez comme "Traité". Un nombre élevé indique une journée productive, mais veillez à maintenir un bon équilibre pour éviter la fatigue.
+                      {activeSousSection === 'journaliere'
+                        ? 'Nombre total de tickets traités aujourd’hui.'
+                        : activeSousSection === 'hebdomadaire'
+                        ? 'Nombre total de tickets traités cette semaine.'
+                        : 'Nombre total de tickets traités ce mois-ci.'}
                     </p>
                     <p className="mb-2">
-                      <strong>Temps d’Attente Moyen:</strong> {stats.averageWaitTime} minutes
+                      <strong>Temps d’Attente Moyen: </strong> {stats.averageWaitTime} minutes
                     </p>
                     <p className="mb-2">
-                      Le temps d’attente moyen est calculé en mesurant la durée entre le moment où un ticket est appelé et le moment où il est marqué comme traité. Une valeur faible indique une gestion efficace de la file d’attente, ce qui améliore l’expérience client. Si ce temps est trop élevé, envisagez d’optimiser vos processus ou d’ajuster les priorités des tickets.
+                      {activeSousSection === 'journaliere'
+                        ? 'Durée moyenne entre l’appel et le traitement des tickets aujourd’hui.'
+                        : activeSousSection === 'hebdomadaire'
+                        ? 'Durée moyenne entre l’appel et le traitement des tickets cette semaine.'
+                        : 'Durée moyenne entre l’appel et le traitement des tickets ce mois-ci.'}
                     </p>
                     <p className="mb-2">
-                      <strong>Taux de Satisfaction:</strong> {stats.satisfactionRate}%
+                      <strong>Taux de Satisfaction: </strong> {stats.satisfactionRate}%
                     </p>
                     <p>
-                      Le taux de satisfaction est une estimation basée sur des données historiques et des retours clients. Un taux élevé reflète une bonne qualité de service. Si ce taux diminue, il peut être utile de revoir les temps d’attente ou d’améliorer la communication avec les clients via des notifications personnalisées.
+                      Estimation basée sur des données historiques.
                     </p>
                   </div>
                   <div className="mt-4 text-gray-600">
                     <p className="font-semibold">Conseils pour Améliorer Vos Performances:</p>
                     <ul className="list-disc list-inside space-y-1 mt-2">
-                      <li>Utilisez les notifications pour informer les clients des retards ou des changements.</li>
-                      <li>Passez en mode "Pause" si vous avez besoin d’une courte interruption pour maintenir votre efficacité.</li>
-                      <li>Analysez les pics d’activité pour mieux répartir votre charge de travail.</li>
-                      <li>Consultez l’historique pour identifier les tendances et ajuster vos méthodes.</li>
+                      <li>Utilisez les notifications pour informer les clients des retards.</li>
+                      <li>Passez en mode "Pause" pour maintenir votre efficacité.</li>
+                      <li>Analysez les pics d’activité pour mieux gérer votre charge.</li>
+                      <li>Consultez l’historique pour ajuster vos méthodes.</li>
                     </ul>
                   </div>
                 </div>
@@ -983,39 +1085,41 @@ const AppelTicket = () => {
 
               {activeSection === 'historique' && (
                 <div className="card gold-border animate-slide-in">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-primary-blue">Historique</h2>
-                    <div className="flex space-x-2 items-center">
-                      <input
-                        type="date"
-                        value={dateFilter}
-                        onChange={(e) => setDateFilter(e.target.value)}
-                        className="border rounded px-2 py-1"
-                      />
-                      <button
-                        onClick={() => setDateFilter('')}
-                        className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400 flex items-center"
-                      >
-                        <i className="fas fa-times mr-2"></i> Réinitialiser
-                      </button>
-                      <button
-                        onClick={() => setShowHistory(!showHistory)}
-                        className="text-primary-blue hover:underline flex items-center"
-                      >
-                        {showHistory ? (
-                          <>
-                            <i className="fas fa-eye-slash mr-2"></i> Masquer
-                          </>
-                        ) : (
-                          <>
-                            <i className="fas fa-eye mr-2"></i> Afficher
-                          </>
-                        )}
-                      </button>
+                  <div className="sticky-header">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold text-primary-blue">Historique</h2>
+                      <div className="flex space-x-2 items-center">
+                        <input
+                          type="date"
+                          value={dateFilter}
+                          onChange={(e) => setDateFilter(e.target.value)}
+                          className="border rounded px-2 py-1"
+                        />
+                        <button
+                          onClick={() => setDateFilter('')}
+                          className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400 flex items-center"
+                        >
+                          <i className="fas fa-times mr-2"></i> Réinitialiser
+                        </button>
+                        <button
+                          onClick={() => setShowHistory(!showHistory)}
+                          className="text-primary-blue hover:underline flex items-center"
+                        >
+                          {showHistory ? (
+                            <>
+                              <i className="fas fa-eye-slash mr-2"></i> Masquer
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-eye mr-2"></i> Afficher
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                   {showHistory && (
-                    <div className="overflow-x-auto">
+                    <div className="table-container">
                       <table className="w-full text-left">
                         <thead>
                           <tr className="bg-gray-100">

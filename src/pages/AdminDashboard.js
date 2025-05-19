@@ -27,21 +27,27 @@ import {
   faHistory,
   faChevronDown,
   faChevronUp,
+  faTachometerAlt,
+  faUser,
+  faDesktop,
+  faUserFriends,
+  faChartBar,
 } from '@fortawesome/free-solid-svg-icons';
 import './styles.css';
 import { Spiral } from 'ldrs/react';
 import 'ldrs/react/Spiral.css';
 
-// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [guichets, setGuichets] = useState([]);
   const [services, setServices] = useState([]);
   const [queueTickets, setQueueTickets] = useState([]);
   const [clients, setClients] = useState([]);
   const [guichetHistory, setGuichetHistory] = useState([]);
+  const [guichetiers, setGuichetiers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -50,26 +56,32 @@ const AdminDashboard = () => {
     satisfaction: 0,
     activeGuichets: 0,
   });
-  const [frequencyData, setFrequencyData] = useState({ labels: [], datasets: [] });
-  const [waitingTimeData, setWaitingTimeData] = useState({ labels: [], datasets: [] });
-  const [guichetActivityData, setGuichetActivityData] = useState({ labels: [], datasets: [] });
-  const [clientActivityData, setClientActivityData] = useState({ labels: [], datasets: [] });
-  // States for date filtering
+  const [dailyStats, setDailyStats] = useState({ client_stats: { labels: [], data: [], label: '' }, guichet_stats: { labels: [], data: [], label: '' } });
+  const [weeklyStats, setWeeklyStats] = useState({ client_stats: { labels: [], data: [], label: '' }, guichet_stats: { labels: [], data: [], label: '' } });
+  const [monthlyStats, setMonthlyStats] = useState({ client_stats: { labels: [], data: [], label: '' }, guichet_stats: { labels: [], data: [], label: '' } });
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [filteredGuichetHistory, setFilteredGuichetHistory] = useState([]);
-  // States for search functionality
   const [clientSearch, setClientSearch] = useState('');
   const [guichetierSearch, setGuichetierSearch] = useState('');
-  // States for toggling sections
   const [isGuichetSectionOpen, setIsGuichetSectionOpen] = useState(true);
   const [isClientSectionOpen, setIsClientSectionOpen] = useState(true);
   const [isHistorySectionOpen, setIsHistorySectionOpen] = useState(true);
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSubSection, setActiveSubSection] = useState('journaliere');
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const bankId = 1;
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   const fetchData = async () => {
     const token = localStorage.getItem('access_token');
@@ -82,7 +94,6 @@ const AdminDashboard = () => {
     setLoading(true);
 
     try {
-      // Fetch current user to verify admin role
       const userResponse = await axios.get('http://localhost:8000/api/users/user/', {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -93,7 +104,6 @@ const AdminDashboard = () => {
         return;
       }
 
-      // Fetch all data concurrently
       const [
         ticketsRes,
         guichetsRes,
@@ -101,43 +111,29 @@ const AdminDashboard = () => {
         queueTicketsRes,
         clientsRes,
         guichetHistoryRes,
+        guichetiersRes,
       ] = await Promise.all([
         axios.get(`http://localhost:8000/api/tickets/?bank_id=${bankId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching tickets:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/guichets/?bank_id=${bankId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching guichets:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/services/?bank_id=${bankId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching services:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/tickets/?bank_id=${bankId}&statut=attente`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching queue tickets:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/users/?role=client`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching clients:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${bankId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error('Error fetching guichet history:', err);
-          return { data: [] };
-        }),
+        }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/users/?role=guichetier`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).catch(err => ({ data: [] })),
       ]);
 
       setTickets(ticketsRes.data);
@@ -146,21 +142,26 @@ const AdminDashboard = () => {
       setQueueTickets(queueTicketsRes.data);
       setClients(clientsRes.data);
       setGuichetHistory(guichetHistoryRes.data);
-      setFilteredGuichetHistory(guichetHistoryRes.data); // Initially show all history
+      setGuichetiers(guichetiersRes.data);
+      setFilteredGuichetHistory(guichetHistoryRes.data);
+
+      if (guichetsRes.data.length > 0 && activeSection === 'historique') {
+        setActiveSubSection(`guichet-${guichetsRes.data[0].id}`);
+        fetchFilteredGuichetHistory(guichetsRes.data[0].id);
+      }
 
       if (ticketsRes.data.length === 0 && guichetsRes.data.length === 0 && servicesRes.data.length === 0) {
         setError('Aucune donnée disponible. Vérifiez que des données existent pour cette banque.');
       }
     } catch (err) {
       setError('Erreur lors de la récupération des données: ' + (err.response?.data?.error || err.message));
-      console.error(err);
       navigate('/login');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchFilteredGuichetHistory = async () => {
+  const fetchFilteredGuichetHistory = async (guichetId = null) => {
     const token = localStorage.getItem('access_token');
     if (!token) {
       setError('Session expirée. Veuillez vous reconnecter.');
@@ -170,6 +171,9 @@ const AdminDashboard = () => {
 
     try {
       let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${bankId}`;
+      if (guichetId) {
+        url += `&guichet_id=${guichetId}`;
+      }
       if (startDate) {
         url += `&start_date=${startDate}`;
       }
@@ -184,12 +188,53 @@ const AdminDashboard = () => {
       setFilteredGuichetHistory(response.data);
     } catch (err) {
       setError('Erreur lors de la récupération de l’historique filtré: ' + (err.response?.data?.error || err.message));
-      console.error(err);
+      setFilteredGuichetHistory([]);
+    }
+  };
+
+  const fetchStats = async (period) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setError('Session expirée. Veuillez vous reconnecter.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:8000/api/stats/aggregate/?bank_id=${bankId}&period=${period}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const formattedData = {
+        client_stats: {
+          labels: response.data.client_stats.labels,
+          data: response.data.client_stats.data,
+          label: response.data.client_stats.label,
+        },
+        guichet_stats: {
+          labels: response.data.guichet_stats.labels,
+          data: response.data.guichet_stats.data,
+          label: response.data.guichet_stats.label,
+        },
+      };
+
+      if (period === 'daily') {
+        setDailyStats(formattedData);
+      } else if (period === 'weekly') {
+        setWeeklyStats(formattedData);
+      } else if (period === 'monthly') {
+        setMonthlyStats(formattedData);
+      }
+    } catch (err) {
+      setError('Erreur lors de la récupération des statistiques: ' + (err.response?.data?.error || err.message));
     }
   };
 
   useEffect(() => {
     fetchData();
+    fetchStats('daily');
+    fetchStats('weekly');
+    fetchStats('monthly');
   }, [navigate, location]);
 
   useEffect(() => {
@@ -205,97 +250,7 @@ const AdminDashboard = () => {
       satisfaction,
       activeGuichets,
     });
-
-    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    const ticketCounts = Array(7).fill(0);
-    tickets.forEach((ticket) => {
-      const ticketDate = new Date(ticket.date_heure);
-      const dayIndex = ticketDate.getDay() === 0 ? 6 : ticketDate.getDay() - 1;
-      ticketCounts[dayIndex]++;
-    });
-
-    setFrequencyData({
-      labels: days,
-      datasets: [
-        {
-          label: 'Fréquentation journalière',
-          data: ticketCounts,
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1,
-        },
-      ],
-    });
-
-    const waitingTimes = Array(7).fill(0);
-    const counts = Array(7).fill(0);
-    tickets.forEach((ticket) => {
-      const ticketDate = new Date(ticket.date_heure);
-      const dayIndex = ticketDate.getDay() === 0 ? 6 : ticketDate.getDay() - 1;
-      waitingTimes[dayIndex] += ticket.waiting_time || 0;
-      counts[dayIndex]++;
-    });
-    const avgWaitingTimes = waitingTimes.map((total, index) =>
-      counts[index] ? Math.round(total / counts[index]) : 0
-    );
-
-    setWaitingTimeData({
-      labels: days,
-      datasets: [
-        {
-          label: "Temps d'attente moyen (minutes)",
-          data: avgWaitingTimes,
-          fill: false,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          tension: 0.1,
-        },
-      ],
-    });
-
-    const guichetActivity = {};
-    guichets.forEach((guichet) => {
-      guichetActivity[guichet.id] = { number: guichet.number, count: 0 };
-    });
-    guichetHistory.forEach((entry) => {
-      if (entry.action === 'traite' && guichetActivity[entry.guichet?.id]) {
-        guichetActivity[entry.guichet.id].count++;
-      }
-    });
-    setGuichetActivityData({
-      labels: Object.values(guichetActivity).map((g) => `Guichet ${g.number}`),
-      datasets: [
-        {
-          label: 'Tickets Traités par Guichet',
-          data: Object.values(guichetActivity).map((g) => g.count),
-          backgroundColor: 'rgba(255, 206, 86, 0.6)',
-          borderColor: 'rgba(255, 206, 86, 1)',
-          borderWidth: 1,
-        },
-      ],
-    });
-
-    const clientActivity = {};
-    clients.forEach((client) => {
-      clientActivity[client.id] = { username: client.username, count: 0 };
-    });
-    tickets.forEach((ticket) => {
-      if (clientActivity[ticket.user?.id]) {
-        clientActivity[ticket.user.id].count++;
-      }
-    });
-    setClientActivityData({
-      labels: Object.values(clientActivity).map((c) => c.username),
-      datasets: [
-        {
-          label: 'Tickets Créés par Client',
-          data: Object.values(clientActivity).map((c) => c.count),
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          borderWidth: 1,
-        },
-      ],
-    });
-  }, [tickets, guichets, clients, guichetHistory]);
+  }, [tickets, guichets]);
 
   const handleGuichetAction = async (guichetId, action) => {
     const token = localStorage.getItem('access_token');
@@ -318,7 +273,35 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       setError('Erreur lors de la gestion du guichet: ' + (err.response?.data?.error || err.message));
-      console.error(err);
+    }
+  };
+
+  const handleGuichetierAction = async (guichetierId, action) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setError('Session expirée. Veuillez vous reconnecter.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (action === 'edit') {
+        if (!guichetierId || guichetierId === 'undefined' || isNaN(guichetierId)) {
+          console.error('Invalid Guichetier ID:', guichetierId);
+          setError('Erreur: ID du guichetier non valide.');
+          return;
+        }
+        navigate(`/admin/guichetiers/edit/${guichetierId}`);
+      } else if (action === 'delete') {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichetier ?')) {
+          await axios.delete(`http://localhost:8000/api/guichetier/${guichetierId}/delete/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setGuichetiers(guichetiers.filter((guichetier) => guichetier.id !== guichetierId));
+        }
+      }
+    } catch (err) {
+      setError('Erreur lors de la gestion du guichetier: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -328,19 +311,21 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  // Filter guichets based on guichetier search
   const filteredGuichets = guichets.filter((guichet) =>
     guichet.user?.username?.toLowerCase().includes(guichetierSearch.toLowerCase())
   );
 
-  // Filter clients based on client search
   const filteredClients = clients.filter((client) =>
     client.username.toLowerCase().includes(clientSearch.toLowerCase())
   );
 
+  const filteredGuichetiers = guichetiers.filter((guichetier) =>
+    guichetier.username.toLowerCase().includes(guichetierSearch.toLowerCase())
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-light">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-gray-600 text-lg">Chargement...</div>
         <Spiral size="40" speed="0.9" color="blue" />
       </div>
@@ -348,206 +333,262 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-light">
-      {/* Header */}
-      <header className="bg-white shadow-md p-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-primary-blue flex items-center">
-            <FontAwesomeIcon icon={faUsers} className="mr-2 text-accent-gold animate-pulse" />
-            Queue Management System
-          </h1>
+    <div className="min-h-screen flex">
+      <div className={`burger-menu ${isMenuOpen ? 'active' : ''}`} onClick={toggleMenu}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <aside className={isMenuOpen ? 'active' : ''}>
+        <div className="p-4">
+          <h2 className="text-xl font-bold">Admin Dashboard</h2>
         </div>
-        <nav className="flex space-x-4">
+        <nav className="flex-1">
           <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center transition-colors"
+            onClick={() => { setActiveSection('dashboard'); closeMenu(); }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'dashboard' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
           >
-            <i className="fas fa-sign-out-alt mr-2"></i> Déconnexion
+            <FontAwesomeIcon icon={faTachometerAlt} className="mr-2" />
+            Tableau de Bord
           </button>
+          <button
+            onClick={() => { setActiveSection('guichetiers'); closeMenu(); }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'guichetiers' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            <FontAwesomeIcon icon={faUser} className="mr-2" />
+            Gestion Guichetiers
+          </button>
+          <button
+            onClick={() => { setActiveSection('guichets'); closeMenu(); }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'guichets' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            <FontAwesomeIcon icon={faDesktop} className="mr-2" />
+            Gestion Guichets
+          </button>
+          <button
+            onClick={() => { setActiveSection('clients'); closeMenu(); }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'clients' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            <FontAwesomeIcon icon={faUserFriends} className="mr-2" />
+            Gestion Clients
+          </button>
+          <button
+            onClick={() => {
+              setActiveSection('statistiques');
+              setActiveSubSection('journaliere');
+              closeMenu();
+            }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'statistiques' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            <FontAwesomeIcon icon={faChartBar} className="mr-2" />
+            Statistiques
+          </button>
+          {activeSection === 'statistiques' && (
+            <div className="ml-4">
+              <button
+                onClick={() => { setActiveSubSection('journaliere'); closeMenu(); }}
+                className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSubSection === 'journaliere' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                Journalière
+              </button>
+              <button
+                onClick={() => { setActiveSubSection('hebdomadaire'); closeMenu(); }}
+                className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSubSection === 'hebdomadaire' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                Hebdomadaire
+              </button>
+              <button
+                onClick={() => { setActiveSubSection('mensuelle'); closeMenu(); }}
+                className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSubSection === 'mensuelle' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                Mensuelle
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => {
+              setActiveSection('historique');
+              if (guichets.length > 0) {
+                setActiveSubSection(`guichet-${guichets[0].id}`);
+                fetchFilteredGuichetHistory(guichets[0].id);
+              }
+              closeMenu();
+            }}
+            className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSection === 'historique' ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+          >
+            <FontAwesomeIcon icon={faHistory} className="mr-2" />
+            Historique Activités
+          </button>
+          {activeSection === 'historique' && (
+            <div className="ml-4">
+              {guichets.map((guichet) => (
+                <button
+                  key={guichet.id}
+                  onClick={() => {
+                    setActiveSubSection(`guichet-${guichet.id}`);
+                    fetchFilteredGuichetHistory(guichet.id);
+                    closeMenu();
+                  }}
+                  className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSubSection === `guichet-${guichet.id}` ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  Guichet {guichet.number}
+                </button>
+              ))}
+            </div>
+          )}
         </nav>
-        <div className="flex items-center text-gray-600">
-          <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-accent-turquoise" />
-          {new Date().toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </div>
-      </header>
+        <button
+          onClick={() => { handleLogout(); closeMenu(); }}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center mt-auto m-4"
+        >
+          <i className="fas fa-sign-out-alt mr-2"></i> Déconnexion
+        </button>
+      </aside>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 animate-slide-in flex items-center">
-            <i className="fas fa-exclamation-triangle mr-2"></i> {error}
+      <div className={`flex-1 ${isMenuOpen ? 'blur-content' : ''}`} onClick={closeMenu}>
+        <header className="bg-white shadow-md p-4 flex justify-end items-center">
+          <div className="flex items-center">
+            <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+            {new Date().toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
           </div>
-        )}
+        </header>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
-            <div className="bg-blue-100 p-3 rounded-full mr-4">
-              <FontAwesomeIcon icon={faTicketAlt} className="w-6 h-6 text-primary-blue" />
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          {error && (
+            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 animate-slide-in flex items-center">
+              <i className="fas fa-exclamation-triangle mr-2"></i> {error}
             </div>
+          )}
+
+          {activeSection === 'dashboard' && (
             <div>
-              <h3 className="text-lg font-semibold text-primary-blue">Tickets</h3>
-              <p className="text-2xl font-bold text-primary-blue">{stats.totalTickets}</p>
-              <p className="text-accent-turquoise text-sm">
-                +{Math.round(stats.totalTickets * 0.16)} par rapport à hier
-              </p>
-            </div>
-          </div>
-          <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
-            <div className="bg-yellow-100 p-3 rounded-full mr-4">
-              <FontAwesomeIcon icon={faClock} className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-primary-blue">Temps d’attente</h3>
-              <p className="text-2xl font-bold text-primary-blue">{stats.avgWaitingTime} min</p>
-              <p className="text-red-500 text-sm">
-                {stats.avgWaitingTime > 0 ? '+3 min par rapport à hier' : 'N/A'}
-              </p>
-            </div>
-          </div>
-          <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
-            <div className="bg-green-100 p-3 rounded-full mr-4">
-              <FontAwesomeIcon icon={faSmile} className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-primary-blue">Satisfaction</h3>
-              <p className="text-2xl font-bold text-primary-blue">{stats.satisfaction}%</p>
-              <p className="text-accent-turquoise text-sm">
-                {stats.satisfaction > 0 ? '+2% par rapport à hier' : 'N/A'}
-              </p>
-            </div>
-          </div>
-          <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
-            <div className="bg-purple-100 p-3 rounded-full mr-4">
-              <FontAwesomeIcon icon={faUsers} className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-primary-blue">Guichets actifs</h3>
-              <p className="text-2xl font-bold text-primary-blue">
-                {stats.activeGuichets}/{guichets.length}
-              </p>
-            </div>
-          </div>
-        </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
+                  <div className="bg-blue-100 p-3 rounded-full mr-4">
+                    <FontAwesomeIcon icon={faTicketAlt} className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Tickets</h3>
+                    <p className="text-2xl font-bold">{stats.totalTickets}</p>
+                    <p className="text-sm">
+                      +{Math.round(stats.totalTickets * 0.16)} par rapport à hier
+                    </p>
+                  </div>
+                </div>
+                <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
+                  <div className="bg-yellow-100 p-3 rounded-full mr-4">
+                    <FontAwesomeIcon icon={faClock} className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Temps d’attente</h3>
+                    <p className="text-2xl font-bold">{stats.avgWaitingTime} min</p>
+                    <p className="text-sm">
+                      {stats.avgWaitingTime > 0 ? '+3 min par rapport à hier' : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+                <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
+                  <div className="bg-green-100 p-3 rounded-full mr-4">
+                    <FontAwesomeIcon icon={faSmile} className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Satisfaction</h3>
+                    <p className="text-2xl font-bold">{stats.satisfaction}%</p>
+                    <p className="text-sm">
+                      {stats.satisfaction > 0 ? '+2% par rapport à hier' : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+                <div className="card gold-border flex items-center hover:shadow-lg transition-shadow animate-slide-in">
+                  <div className="bg-purple-100 p-3 rounded-full mr-4">
+                    <FontAwesomeIcon icon={faUsers} className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Guichets actifs</h3>
+                    <p className="text-2xl font-bold">
+                      {stats.activeGuichets}/{guichets.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-        {/* Frequency and Waiting Time Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
-            <h3 className="text-lg font-semibold text-primary-blue mb-4">Analyse de la fréquentation</h3>
-            <Bar
-              data={frequencyData}
-              options={{
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Fréquentation journalière',
-                    },
-                  },
-                  x: {
-                    title: {
-                      display: true,
-                      text: 'Jours',
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
-            <h3 className="text-lg font-semibold text-primary-blue mb-4">Temps d’attente moyen (minutes)</h3>
-            <Line
-              data={waitingTimeData}
-              options={{
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Minutes',
-                    },
-                  },
-                  x: {
-                    title: {
-                      display: true,
-                      text: 'Jours',
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Analyse de la fréquentation</h3>
+                  <Bar
+                    data={{
+                      labels: weeklyStats.client_stats.labels,
+                      datasets: [
+                        {
+                          label: weeklyStats.client_stats.label,
+                          data: weeklyStats.client_stats.data,
+                          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                          borderColor: 'rgba(54, 162, 235, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Fréquentation journalière' } },
+                        x: { title: { display: true, text: 'Jours' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre le nombre de tickets créés par jour cette semaine.
+                  </p>
+                </div>
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Temps d’attente moyen (minutes)</h3>
+                  <Line
+                    data={{
+                      labels: weeklyStats.client_stats.labels,
+                      datasets: [
+                        {
+                          label: 'Temps d’attente moyen (minutes)',
+                          data: tickets.reduce((acc, ticket) => {
+                            const date = new Date(ticket.date_heure).getDay();
+                            acc[date === 0 ? 6 : date - 1] = (acc[date === 0 ? 6 : date - 1] || 0) + (ticket.waiting_time || 0);
+                            return acc;
+                          }, Array(7).fill(0)).map((total, i) => total / (tickets.filter(t => new Date(t.date_heure).getDay() === (i === 6 ? 0 : i + 1)).length || 1)),
+                          fill: false,
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          tension: 0.1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Minutes' } },
+                        x: { title: { display: true, text: 'Jours' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre le temps d’attente moyen par jour.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Activity History Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
-            <h3 className="text-lg font-semibold text-primary-blue mb-4">Activité des Guichets</h3>
-            <Bar
-              data={guichetActivityData}
-              options={{
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Nombre de Tickets Traités',
-                    },
-                  },
-                  x: {
-                    title: {
-                      display: true,
-                      text: 'Guichets',
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
-            <h3 className="text-lg font-semibold text-primary-blue mb-4">Activité des Clients</h3>
-            <Bar
-              data={clientActivityData}
-              options={{
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Nombre de Tickets Créés',
-                    },
-                  },
-                  x: {
-                    title: {
-                      display: true,
-                      text: 'Clients',
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Guichet Table, Client Table, and Guichet History */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            {/* Guichet Management */}
-            <div className="card gold-border mb-6 hover:shadow-lg transition-shadow animate-slide-in">
+          {activeSection === 'guichetiers' && (
+            <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
               <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsGuichetSectionOpen(!isGuichetSectionOpen)}>
-                <h3 className="text-lg font-semibold text-primary-blue">Gestion des guichets</h3>
-                <FontAwesomeIcon icon={isGuichetSectionOpen ? faChevronUp : faChevronDown} className="text-primary-blue" />
+                <h3 className="text-lg font-semibold">Gestion des Guichetiers</h3>
+                <FontAwesomeIcon icon={isGuichetSectionOpen ? faChevronUp : faChevronDown} />
               </div>
               {isGuichetSectionOpen && (
                 <>
                   <div className="flex flex-col sm:flex-row gap-4 mb-4">
                     <div className="flex-1">
-                      <label htmlFor="guichetierSearch" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="guichetierSearch" className="block text-sm font-medium mb-1">
                         Rechercher un guichetier
                       </label>
                       <div className="relative">
@@ -557,15 +598,15 @@ const AdminDashboard = () => {
                           value={guichetierSearch}
                           onChange={(e) => setGuichetierSearch(e.target.value)}
                           placeholder="Nom du guichetier..."
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue"
+                          className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none"
                         />
-                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                       </div>
                     </div>
                     <div className="flex items-end">
                       <button
-                        onClick={() => navigate('/admin/guichets/add')}
-                        className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center transition-colors"
+                        onClick={() => navigate('/admin/guichetiers/add')}
+                        className="bg-primary-blue text-white px-4 py-2 rounded flex items-center transition-colors"
                       >
                         <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Ajouter
@@ -573,30 +614,131 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y">
+                      <thead>
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Guichet
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Guichetier
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Email
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Statut
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Service
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
+                        {filteredGuichetiers.length === 0 ? (
+                          <tr>
+                            <td colSpan="4" className="px-6 py-4 text-center">
+                              Aucun guichetier disponible.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredGuichetiers.map((guichetier) => (
+                            <tr key={guichetier.id} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-4 whitespace-nowrap">{guichetier.username}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">{guichetier.email || '-'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    guichetier.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                  }`}
+                                >
+                                  {guichetier.is_active ? 'Actif' : 'Suspendu'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <button
+                                  onClick={() => handleGuichetierAction(guichetier.id, 'edit')}
+                                  className="mr-3 transition-colors"
+                                  title="Modifier"
+                                >
+                                  <FontAwesomeIcon icon={faEdit} />
+                                </button>
+                                <button
+                                  onClick={() => handleGuichetierAction(guichetier.id, 'delete')}
+                                  className="transition-colors"
+                                  title="Supprimer"
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {activeSection === 'guichets' && (
+            <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+              <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsGuichetSectionOpen(!isGuichetSectionOpen)}>
+                <h3 className="text-lg font-semibold">Gestion des guichets</h3>
+                <FontAwesomeIcon icon={isGuichetSectionOpen ? faChevronUp : faChevronDown} />
+              </div>
+              {isGuichetSectionOpen && (
+                <>
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div className="flex-1">
+                      <label htmlFor="guichetierSearch" className="block text-sm font-medium mb-1">
+                        Rechercher un guichetier
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          id="guichetierSearch"
+                          value={guichetierSearch}
+                          onChange={(e) => setGuichetierSearch(e.target.value)}
+                          placeholder="Nom du guichetier..."
+                          className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none"
+                        />
+                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+                      </div>
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        onClick={() => navigate('/admin/guichets/add')}
+                        className="bg-primary-blue text-white px-4 py-2 rounded flex items-center transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Guichet
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Guichetier
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Statut
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Service
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {filteredGuichets.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                            <td colSpan="5" className="px-6 py-4 text-center">
                               Aucun guichet disponible.
                             </td>
                           </tr>
@@ -604,9 +746,7 @@ const AdminDashboard = () => {
                           filteredGuichets.map((guichet) => (
                             <tr key={guichet.id} className="hover:bg-gray-50 transition-colors">
                               <td className="px-6 py-4 whitespace-nowrap">{guichet.number}</td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                {guichet.user?.username || '-'}
-                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">{guichet.user?.username || '-'}</td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
                                   className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -624,14 +764,14 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <button
                                   onClick={() => handleGuichetAction(guichet.id, 'edit')}
-                                  className="text-primary-blue hover:text-blue-800 mr-3 transition-colors"
+                                  className="mr-3 transition-colors"
                                   title="Modifier"
                                 >
                                   <FontAwesomeIcon icon={faEdit} />
                                 </button>
                                 <button
                                   onClick={() => handleGuichetAction(guichet.id, 'delete')}
-                                  className="text-red-600 hover:text-red-800 transition-colors"
+                                  className="transition-colors"
                                   title="Supprimer"
                                 >
                                   <FontAwesomeIcon icon={faTrash} />
@@ -646,18 +786,19 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
+          )}
 
-            {/* Client Management */}
+          {activeSection === 'clients' && (
             <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
               <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsClientSectionOpen(!isClientSectionOpen)}>
-                <h3 className="text-lg font-semibold text-primary-blue">Gestion des Clients</h3>
-                <FontAwesomeIcon icon={isClientSectionOpen ? faChevronUp : faChevronDown} className="text-primary-blue" />
+                <h3 className="text-lg font-semibold">Gestion des Clients</h3>
+                <FontAwesomeIcon icon={isClientSectionOpen ? faChevronUp : faChevronDown} />
               </div>
               {isClientSectionOpen && (
                 <>
                   <div className="flex flex-col sm:flex-row gap-4 mb-4">
                     <div className="flex-1">
-                      <label htmlFor="clientSearch" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="clientSearch" className="block text-sm font-medium mb-1">
                         Rechercher un client
                       </label>
                       <div className="relative">
@@ -667,34 +808,34 @@ const AdminDashboard = () => {
                           value={clientSearch}
                           onChange={(e) => setClientSearch(e.target.value)}
                           placeholder="Nom du client..."
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue"
+                          className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none"
                         />
-                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                       </div>
                     </div>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y">
+                      <thead>
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Client
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Email
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Statut
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Tickets Actifs
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
                         {filteredClients.length === 0 ? (
                           <tr>
-                            <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                            <td colSpan="4" className="px-6 py-4 text-center">
                               Aucun client disponible.
                             </td>
                           </tr>
@@ -729,106 +870,286 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Guichet History with Date Filter */}
-          <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
-            <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsHistorySectionOpen(!isHistorySectionOpen)}>
-              <h3 className="text-lg font-semibold text-primary-blue">Historique des activités des guichets</h3>
-              <FontAwesomeIcon icon={isHistorySectionOpen ? faChevronUp : faChevronDown} className="text-primary-blue" />
-            </div>
-            {isHistorySectionOpen && (
-              <>
-                <div className="flex flex-wrap gap-4 mb-4">
-                  <div className="flex-1 min-w-[200px]">
-                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-                      Date de début
-                    </label>
-                    <input
-                      type="date"
-                      id="startDate"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-                      Date de fin
-                    </label>
-                    <input
-                      type="date"
-                      id="endDate"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button
-                      onClick={fetchFilteredGuichetHistory}
-                      className="bg-primary-blue text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center transition-colors"
-                    >
-                      <FontAwesomeIcon icon={faSearch} className="mr-2" />
-                      Filtrer
-                    </button>
-                  </div>
+          {activeSection === 'statistiques' && activeSubSection === 'journaliere' && (
+            <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Clients (Journalier)</h3>
+                  <Bar
+                    data={{
+                      labels: dailyStats.client_stats.labels,
+                      datasets: [
+                        {
+                          label: dailyStats.client_stats.label,
+                          data: dailyStats.client_stats.data,
+                          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        x: { title: { display: true, text: 'Heures' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre l’activité des clients par heure aujourd’hui.
+                  </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Guichet
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Ticket
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Action
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredGuichetHistory.length === 0 ? (
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Guichets (Journalier)</h3>
+                  <Bar
+                    data={{
+                      labels: dailyStats.guichet_stats.labels,
+                      datasets: [
+                        {
+                          label: dailyStats.guichet_stats.label,
+                          data: dailyStats.guichet_stats.data,
+                          backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                          borderColor: 'rgba(255, 206, 86, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        x: { title: { display: true, text: 'Guichets' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre le nombre de tickets traités par guichet aujourd’hui.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'statistiques' && activeSubSection === 'hebdomadaire' && (
+            <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Clients (Hebdomadaire)</h3>
+                  <Bar
+                    data={{
+                      labels: weeklyStats.client_stats.labels,
+                      datasets: [
+                        {
+                          label: weeklyStats.client_stats.label,
+                          data: weeklyStats.client_stats.data,
+                          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        x: { title: { display: true, text: 'Jours' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre l’activité des clients par jour cette semaine.
+                  </p>
+                </div>
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Guichets (Hebdomadaire)</h3>
+                  <Bar
+                    data={{
+                      labels: weeklyStats.guichet_stats.labels,
+                      datasets: [
+                        {
+                          label: weeklyStats.guichet_stats.label,
+                          data: weeklyStats.guichet_stats.data,
+                          backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                          borderColor: 'rgba(255, 206, 86, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        x: { title: { display: true, text: 'Guichets' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre le nombre de tickets traités par guichet cette semaine.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'statistiques' && activeSubSection === 'mensuelle' && (
+            <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Clients (Mensuel)</h3>
+                  <Bar
+                    data={{
+                      labels: monthlyStats.client_stats.labels,
+                      datasets: [
+                        {
+                          label: monthlyStats.client_stats.label,
+                          data: monthlyStats.client_stats.data,
+                          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        x: { title: { display: true, text: 'Jours' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre l’activité des clients par jour ce mois-ci.
+                  </p>
+                </div>
+                <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+                  <h3 className="text-lg font-semibold mb-4">Statistiques Guichets (Mensuel)</h3>
+                  <Bar
+                    data={{
+                      labels: monthlyStats.guichet_stats.labels,
+                      datasets: [
+                        {
+                          label: monthlyStats.guichet_stats.label,
+                          data: monthlyStats.guichet_stats.data,
+                          backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                          borderColor: 'rgba(255, 206, 86, 1)',
+                          borderWidth: 1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        x: { title: { display: true, text: 'Guichets' } },
+                      },
+                    }}
+                  />
+                  <p className="mt-4">
+                    Ce graphique montre le nombre de tickets traités par guichet ce mois-ci.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'historique' && activeSubSection.startsWith('guichet-') && (
+            <div className="card gold-border hover:shadow-lg transition-shadow animate-slide-in">
+              <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setIsHistorySectionOpen(!isHistorySectionOpen)}>
+                <h3 className="text-lg font-semibold">Historique des activités des guichets</h3>
+                <FontAwesomeIcon icon={isHistorySectionOpen ? faChevronUp : faChevronDown} />
+              </div>
+              {isHistorySectionOpen && (
+                <>
+                  <div className="fixed-header">
+                    <div className="flex flex-wrap gap-4 mb-4">
+                      <div className="flex-1 min-w-[200px]">
+                        <label htmlFor="startDate" className="block text-sm font-medium mb-1">
+                          Date de début
+                        </label>
+                        <input
+                          type="date"
+                          id="startDate"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-[200px]">
+                        <label htmlFor="endDate" className="block text-sm font-medium mb-1">
+                          Date de fin
+                        </label>
+                        <input
+                          type="date"
+                          id="endDate"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          onClick={() => fetchFilteredGuichetHistory(activeSubSection.split('-')[1])}
+                          className="bg-primary-blue text-white px-4 py-2 rounded flex items-center transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faSearch} className="mr-2" />
+                          Filtrer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto max-h-[500px]">
+                    <table className="min-w-full divide-y">
+                      <thead className="sticky top-0 z-10">
                         <tr>
-                          <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
-                            Aucun historique disponible pour cette période.
-                          </td>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Guichet
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Ticket
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Action
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            Date
+                          </th>
                         </tr>
-                      ) : (
-                        filteredGuichetHistory.map((entry) => (
-                          <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {entry.guichet ? `Guichet ${entry.guichet.number}` : '-'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">{entry.ticket_numero || '-'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {entry.action === 'traite' ? 'Traité' : entry.action === 'called' ? 'Appelé' : entry.action}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {new Date(entry.created_at).toLocaleString('fr-FR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                      </thead>
+                      <tbody>
+                        {filteredGuichetHistory.length === 0 ? (
+                          <tr>
+                            <td colSpan="4" className="px-6 py-4 text-center">
+                              Aucun historique disponible pour cette période.
                             </td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </main>
+                        ) : (
+                          filteredGuichetHistory.map((entry) => (
+                            <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {entry.guichet ? `Guichet ${entry.guichet.number}` : '-'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">{entry.ticket_numero || '-'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {entry.action === 'traite' ? 'Traité' : entry.action === 'called' ? 'Appelé' : entry.action}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {new Date(entry.created_at).toLocaleString('fr-FR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };

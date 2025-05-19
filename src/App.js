@@ -19,6 +19,8 @@ import Contact from './pages/Contact';
 import PourquoiQueueMaster from './pages/PourquoiQueueMaster';
 import NosPartenaires from './pages/NosPartenaires';
 import FAQ from './pages/FAQ';
+import AddGuichetier from './pages/AddGuichetier';
+import EditGuichetier from './pages/EditGuichetier';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/admin/guichets/add" element={<AddGuichet />} />
         <Route path="/admin/guichets/edit/:guichetId" element={<EditGuichet />} />
+        <Route path="/admin/guichetiers/add" element={<AddGuichetier />} />
+        <Route path="/admin/guichetiers/edit/:id" element={<EditGuichetier />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/Pourquoi-QueueMaster" element={<PourquoiQueueMaster />} />
         <Route path="/Nos-Partenaires" element={<NosPartenaires />} />
