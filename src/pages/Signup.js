@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import fourPeopleWithClock from '../assets/images/four_people_with_clock.png';
-import './styles.css';
+import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import './style.css';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -23,7 +23,7 @@ const Signup = () => {
       await axios.post('http://localhost:8000/api/users/register/', {
         username,
         password,
-        role: 'client'
+        role: 'client',
       });
       toast.success('Inscription réussie ! Connectez-vous maintenant.');
       navigate('/login');
@@ -35,18 +35,22 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center section-bg relative">
-      
-      <Link to="/" className="back-button" aria-label="Retour à la page d'accueil">Retour</Link>
-      <div className="card w-full max-w-md animate-slide-in relative z-10">
-        <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center flex items-center">
-          <i className="fas fa-user-plus mr-2 text-accent-gold animate-pulse"></i> Inscription Client
+      <Link to="/" className="back-button" aria-label="Retour à la page d'accueil">
+        Retour
+      </Link>
+      <div className="card w-full max-w-md animate-slide-in">
+        <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center flex items-center justify-center">
+          <FontAwesomeIcon icon={faUserPlus} className="mr-2 text-accent-gold animate-pulse" />
+          Inscription Client
         </h2>
         {error && (
-          <p className="text-red-500 mb-4 p-3 bg-red-50 rounded-lg">{error}</p>
+          <p className="text-red-800 mb-4 p-3 bg-red-200 rounded-lg">
+            {error}
+          </p>
         )}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-medium">Nom d’utilisateur</label>
+            <label className="block text-primary-blue mb-2 font-bold">Nom d’utilisateur</label>
             <input
               type="text"
               placeholder="Choisissez un nom d’utilisateur"
@@ -57,7 +61,7 @@ const Signup = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-medium">Mot de passe</label>
+            <label className="block text-primary-blue mb-2 font-bold">Mot de passe</label>
             <input
               type="password"
               placeholder="Choisissez un mot de passe"
@@ -67,11 +71,11 @@ const Signup = () => {
               required
             />
           </div>
-          <button type="submit" className="cta-button w-full" aria-label="S'inscrire">
-            <FontAwesomeIcon icon="fa-solid fa-user-plus" className="mr-2" /> S’inscrire
+          <button type="submit" className="cta-button" aria-label="S'inscrire">
+            <FontAwesomeIcon icon={faUserPlus} className="mr-2 fa-icon" /> S’inscrire
           </button>
         </form>
-        <p className="mt-4 text-center text-gray-600">
+        <p className="mt-4 text-center text-gray-900">
           Déjà un compte ?{' '}
           <Link to="/login" className="text-accent-turquoise hover:underline">
             Se connecter

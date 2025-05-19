@@ -104,11 +104,11 @@ const Vitrine = () => {
               <span className="animate-blink">|</span>
             </p>
             <div className="flex justify-center space-x-4">
-              <button onClick={() => navigate('/signup')} className="cta-button text-lg animate-pulse" aria-label="Commencer à utiliser QueueMaster">
+              <button onClick={() => navigate('/signup')} className="secondary-button text-lg cta-button w-full sm:w-auto mt-6" aria-label="Commencer à utiliser QueueMaster">
                 <FontAwesomeIcon icon="fa-solid fa-rocket" className="mr-2" /> Commencer maintenant
               </button>
-              <button onClick={() => navigate('/demo')} className="secondary-button text-lg" aria-label="Essayer une démo de QueueMaster">
-                <FontAwesomeIcon icon={faPlayCircle} className="mr-2" /> Tester la démo
+              <button onClick={() => navigate('/demo')} className="secondary-button text-lg w-full sm:w-auto mt-6" aria-label="Essayer une démo de QueueMaster">
+                <FontAwesomeIcon icon={faPlayCircle} className="mr-2 " /> Tester la démo
               </button>
             </div>
             <div className="mt-6 flex justify-center space-x-8 text-primary-blue animate-slide-in">
@@ -176,15 +176,15 @@ const Vitrine = () => {
             <div className="partners-grid">
               <div className="partner-card">
                 <img src={bankAlphaLogo} alt="Bank Alpha" className="w-full h-48 object-cover mb-4" />
-                <h4>Bank Alpha</h4>
+                <h4>Bank Trust</h4>
               </div>
               <div className="partner-card">
                 <img src={bankBetaLogo} alt="Bank Beta" className="w-full h-48 object-cover mb-4" />
-                <h4>Bank Beta</h4>
+                <h4>Bank Horizon</h4>
               </div>
               <div className="partner-card">
                 <img src={bankGammaLogo} alt="Bank Gamma" className="w-full h-48 object-cover mb-4" />
-                <h4>Bank Gamma</h4>
+                <h4>Bank NovaBank</h4>
               </div>
             </div>
             <button onClick={() => navigate('/nos-partenaires')} className="cta-button w-full sm:w-auto mt-6" aria-label="En savoir plus sur nos partenaires">
@@ -254,11 +254,11 @@ const Vitrine = () => {
             <h3>Prêt à simplifier vos visites ?</h3>
             <p>Rejoignez QueueMaster et gérez vos files d’attente en toute simplicité.</p>
             <div className="cta-buttons">
-              <button onClick={() => navigate('/signup')} className="cta-button text-lg animate-pulse" aria-label="Rejoignez QueueMaster">
+              <button onClick={() => navigate('/signup')} className="secondary-button text-lg cta-button w-full sm:w-auto mt-6 " aria-label="Rejoignez QueueMaster">
                 <FontAwesomeIcon icon="fa-solid fa-user-plus" className="mr-2" /> S’inscrire
               </button>
-              <button onClick={() => navigate('/login')} className="secondary-button text-lg" aria-label="Se connecter à QueueMaster">
-                <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" className="mr-2" /> Se connecter
+              <button onClick={() => navigate('/login')} className="secondary-button text-lg w-full sm:w-auto mt-6" aria-label="Se connecter à QueueMaster">
+                <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" className=" mr-2  secondary-button text-lg" /> Se connecter
               </button>
             </div>
           </div>
