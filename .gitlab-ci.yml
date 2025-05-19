@@ -1,3 +1,5 @@
+image: node:lts  
+
 pages:
   stage: deploy
   script:
