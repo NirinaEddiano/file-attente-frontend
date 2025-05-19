@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate,Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle, faBars, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle, faBars, faArrowRight,faTicketAlt ,faSignInAlt,faUserPlus} from '@fortawesome/free-solid-svg-icons';
 import faqBg from '../assets/images/faq_bg.jpg';
 import './styles.css';
 
@@ -19,18 +19,18 @@ const navigate = useNavigate();
       <header className="header">
         <div className="container header-content">
           <h1>
-            <FontAwesomeIcon icon="fa-solid fa-ticket-alt" className="mr-2" /> QueueMaster
-          </h1>
+             <FontAwesomeIcon icon={faTicketAlt} className="mr-2" /> QueueMaster
+            </h1>
           <nav className={isMenuOpen ? 'active' : ''}>
             <Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>Accueil</Link>
             <Link to="/pourquoi-queuemaster" className={location.pathname === '/pourquoi-queuemaster' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>QueueMaster</Link>
             <Link to="/nos-partenaires" className={location.pathname === '/nos-partenaires' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>Partenaires</Link>
             <Link to="/faq" className={location.pathname === '/faq' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>FAQ</Link>
             <button onClick={() => navigate('/login')} className="secondary-button" aria-label="Se connecter à QueueMaster">
-              <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" className="mr-2" /> Connexion
+              <FontAwesomeIcon icon={faSignInAlt} className="mr-2" /> Connexion
             </button>
             <button onClick={() => navigate('/signup')} className="cta-button" aria-label="S'inscrire à QueueMaster">
-              <FontAwesomeIcon icon="fa-solid fa-user-plus" className="mr-2" /> S'inscrire
+              <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> S'inscrire
             </button>
           </nav>
           <FontAwesomeIcon icon={faBars} className="menu-toggle" onClick={toggleMenu} />

@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import CountUp from 'react-countup';
 import axios from '../utils/axiosConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTicketAlt, faStar, faHandshake, faQuestionCircle, faArrowRight, faPlayCircle, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faTicketAlt, faStar, faHandshake, faQuestionCircle, faArrowRight, faPlayCircle, faBars,faSignInAlt,faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import queueBackgroundVideo1 from '../assets/video/queue-background-video1.mp4';
 import queueBackgroundVideo2 from '../assets/video/queue-background-video2.mp4';
 import queueBackgroundVideo3 from '../assets/video/queue-background-video3.mp4';
@@ -14,7 +14,7 @@ import simplicityBg from '../assets/images/simplicity-bg.jpg';
 import reliabilityBg from '../assets/images/reliability-bg.jpg';
 import comfortBg from '../assets/images/comfort-bg.jpg';
 import mobilityBg from '../assets/images/mobility-bg.jpg';
-import './styles.css';
+import './vitrine.css';
 
 const Vitrine = () => {
   const navigate = useNavigate();
@@ -83,10 +83,10 @@ const Vitrine = () => {
             <Link to="/nos-partenaires" className={location.pathname === '/nos-partenaires' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>Partenaires</Link>
             <Link to="/faq" className={location.pathname === '/faq' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>FAQ</Link>
             <button onClick={() => navigate('/login')} className="adjusted-secondary-button" aria-label="Se connecter à QueueMaster">
-              <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" className="mr-2  secondary-button text-lg"  /> Connexion
+              <FontAwesomeIcon icon={faSignInAlt} className="mr-2" />  Connexion
             </button>
             <button onClick={() => navigate('/signup')} className="cta-button" aria-label="S'inscrire à QueueMaster">
-              <FontAwesomeIcon icon="fa-solid fa-user-plus" className="mr-2" /> S'inscrire
+              <FontAwesomeIcon icon={faUserPlus} className="mr-2" />  S'inscrire
             </button>
           </nav>
           <FontAwesomeIcon icon={faBars} className="menu-toggle" onClick={toggleMenu} />
@@ -104,10 +104,10 @@ const Vitrine = () => {
               <span className="animate-blink">|</span>
             </p>
             <div className="flex justify-center space-x-4">
-              <button onClick={() => navigate('/signup')} className="secondary-button text-lg cta-button w-full sm:w-auto mt-6" aria-label="Commencer à utiliser QueueMaster">
+              <button onClick={() => navigate('/signup')} className=" adjusted-secondary-button " aria-label="Commencer à utiliser QueueMaster">
                 <FontAwesomeIcon icon="fa-solid fa-rocket" className="mr-2" /> Commencer maintenant
               </button>
-              <button onClick={() => navigate('/demo')} className="secondary-button text-lg w-full sm:w-auto mt-6" aria-label="Essayer une démo de QueueMaster">
+              <button onClick={() => navigate('/demo')} className="secondary-button" aria-label="Essayer une démo de QueueMaster">
                 <FontAwesomeIcon icon={faPlayCircle} className="mr-2 " /> Tester la démo
               </button>
             </div>
