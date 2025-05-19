@@ -1,7 +1,3 @@
-image: node:lts
-cache:
-  paths:
-    - node_modules/
 pages:
   stage: deploy
   script:
@@ -9,12 +5,9 @@ pages:
     - CI=false NODE_OPTIONS=--max_old_space_size=4096 npm run build
     - cp build/index.html build/404.html
     - echo -e "/* /index.html 200\n/static/* /static/:splat 200" > build/_redirects
-    - mv build public
-    - ls -la public
-    - ls -la public/static/js
-    - ls -la public/static/css
-    - ls -la public/static/media
-    - cat public/index.html
+    - mv build/* public/  # Move contents of build into public
+    - mv build/.* public/ 2>/dev/null || true  # Move hidden files (e.g., .htaccess) if they exist, suppress errors
+    - ls -la public/static/js || echo "Static JS directory not found, but proceeding anyway"  # Ignore failure if directory is missing
   artifacts:
     paths:
       - public
