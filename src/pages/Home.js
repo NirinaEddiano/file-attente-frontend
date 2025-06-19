@@ -3,6 +3,7 @@ import axios from '../utils/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ClientNavbar from './ClientNavbar';
+import BordDroite from './BordDroite';
 import './styles.css';
 
 const Home = () => {
@@ -38,7 +39,7 @@ const Home = () => {
         setBanks(bankData);
         console.log('Banques chargées :', bankData);
 
-        // Fetch user's active tickets
+        
         const ticketsResponse = await axios.get('/api/tickets/list/?user_only=true');
         const userTickets = ticketsResponse.data || [];
         setUserTickets(userTickets);
@@ -190,7 +191,7 @@ const Home = () => {
       case 1:
         return (
           <div id="step1" className="card gold-border animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center px-40">
               <i className="fas fa-university mr-2 text-accent-gold animate-pulse"></i> Étape 1 : Choisir une banque
             </h2>
             <div className="mb-4">
@@ -228,7 +229,7 @@ const Home = () => {
       case 2:
         return (
           <div className="card gold-border animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center px-40">
               <i className="fas fa-cog mr-2 text-accent-gold animate-pulse"></i> Étape 2 : Choisir un service et motif
             </h2>
             <div className="mb-4">
@@ -296,7 +297,7 @@ const Home = () => {
       case 3:
         return (
           <div className="card gold-border animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center px-40">
               <i className="fas fa-user mr-2 text-accent-gold animate-pulse"></i> Étape 3 : Votre statut
             </h2>
             {requiredDocuments && (
@@ -363,7 +364,7 @@ const Home = () => {
       case 4:
         return (
           <div className="card gold-border animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center px-40">
               <i className="fas fa-id-card mr-2 text-accent-gold animate-pulse"></i> Étape 4 : Identification
             </h2>
             <div className="mb-4">
@@ -408,7 +409,7 @@ const Home = () => {
 
         return (
           <div className="card gold-border animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center px-40">
               <i className="fas fa-ticket-alt mr-2 text-accent-gold animate-pulse"></i> Étape 5 : Confirmer votre demande
             </h2>
             <p className="mb-4 text-gray-600">
@@ -420,7 +421,7 @@ const Home = () => {
             </p>
             {requiredDocuments && (
               <div className="mb-4 p-4 bg-yellow-50 rounded-lg">
-                <p className="text-primary-blue font-semibold flex items-center">
+                <p className="text-primary-blue font-semibold flex items-center ">
                   <i className="fas fa-file-alt mr-2 text-accent-turquoise"></i> Documents à apporter :
                 </p>
                 <p className="text-gray-600">{requiredDocuments}</p>
@@ -461,13 +462,14 @@ const Home = () => {
       <ClientNavbar />
       <main className="p-8 max-w-4xl mx-auto">
         <div className="mb-8 animate-slide-in">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-4xl font-bold mb-4 flex items-center">
+          <div className="titre bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-lg shadow-lg">
+            <h1 className=" text-3xl font-bold mb-4 flex items-center">
               <i className="fas fa-home mr-2 text-accent-gold animate-pulse"></i> Bienvenue, {username || 'Client'} !
             </h1>
             <p className="text-lg mb-4 flex items-center">
-              <i className="fas fa-ticket-alt mr-2 text-accent-turquoise"></i> Prenez un ticket ou un rendez-vous en quelques clics avec QueueMaster.
+              <i className="fas fa-ticket-alt mr-2 text-accent-turquoise"></i> Prenez un ticket ou un rendez-vous en quelques clics avec 
             </p>
+            <p className="text-lg mb-4 flex items-center">QueueMaster.</p>
             <div className="flex space-x-4">
               <button
                 onClick={handleTakeTicket}
@@ -486,7 +488,7 @@ const Home = () => {
         </div>
         {userTickets.length > 0 && (
           <div className="mb-8 animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center ">
               <i className="fas fa-ticket-alt mr-2 text-accent-gold animate-pulse"></i> Vos Tickets Actifs
             </h2>
             <div className="card gold-border p-4">
@@ -518,6 +520,7 @@ const Home = () => {
           <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
             <i className="fas fa-star mr-2 text-accent-gold animate-pulse"></i> Services Populaires
           </h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {featuredServices.map((service) => (
               <div
@@ -538,6 +541,7 @@ const Home = () => {
         )}
         {renderStepContent()}
       </main>
+      <BordDroite />
     </div>
   );
 };

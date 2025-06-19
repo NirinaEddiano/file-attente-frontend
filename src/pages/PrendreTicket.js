@@ -16,7 +16,7 @@ const PrendreTicket = () => {
             return;
         }
 
-        axios.get('http://localhost:8000/api/services/', {
+        axios.get('http://192.168.0.105:8000/api/services/', {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(response => {
@@ -30,7 +30,7 @@ const PrendreTicket = () => {
 
     const handleCreateTicket = () => {
         const token = localStorage.getItem('access_token');
-        axios.post('http://localhost:8000/api/tickets/', 
+        axios.post('http://192.168.0.105:8000/api/tickets/', 
             { service_id: selectedService },
             { headers: { Authorization: `Bearer ${token}` } }
         )

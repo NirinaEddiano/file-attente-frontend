@@ -3,14 +3,21 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
-import './style.css';
+import { faSignInAlt,faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import './Login.css';
+import loginIllustration from '../assets/images/login-illustration.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +26,7 @@ const Login = () => {
         username,
         password,
       });
+      console.log('Token Response:', tokenResponse.data);
       localStorage.setItem('access_token', tokenResponse.data.access);
       localStorage.setItem('refresh_token', tokenResponse.data.refresh);
 
@@ -27,6 +35,7 @@ const Login = () => {
           Authorization: `Bearer ${tokenResponse.data.access}`,
         },
       });
+      console.log('User Response:', userResponse.data);
 
       toast.success('Connexion réussie !');
       const role = userResponse.data.role;
@@ -34,6 +43,7 @@ const Login = () => {
       else if (role === 'guichetier') navigate('/appel-ticket');
       else navigate('/home');
     } catch (err) {
+      console.error('Login Error:', err);
       const errorMessage =
         err.response?.status === 401
           ? 'Identifiants incorrects'
@@ -44,53 +54,64 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center section-bg relative">
-      <Link to="/" className="back-button" aria-label="Retour à la page d'accueil">
+    <div className="login-page-container">
+      <Link to="/" className="back-button1">
         Retour
       </Link>
-      <div className="card w-full max-w-md animate-slide-in">
-        <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center flex items-center justify-center">
-          <FontAwesomeIcon icon={faSignInAlt} className="mr-2 text-accent-gold animate-pulse" />
-          Connexion
-        </h2>
-         {error && (
-          <p className="text-red-800 mb-4 p-3 bg-red-200 rounded-lg">
-            {error}
+      <div className="login-card">
+
+        <div className="panel-form">
+          <form onSubmit={handleSubmit} className="form-container" noValidate>
+            <h1 className="form-title">Connexion</h1>
+            
+            {error && <p className="error-message">{error}</p>}
+            
+            <div className="input-wrapper">
+              <i className="fas fa-user input-icon"></i>
+              <input
+                id="username"
+                type="text"
+                placeholder="Nom d’utilisateur"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="input-wrapper">
+              <i className="fas fa-lock input-icon"></i>
+              <input
+                id="password"
+                type={isPasswordVisible ? 'text' : 'password'} 
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <FontAwesomeIcon
+                icon={isPasswordVisible ? faEyeSlash : faEye}
+                className="password-toggle-icon"
+                onClick={togglePasswordVisibility}
+              />
+            </div>
+
+            <button type="submit" className="btn btn-solid">
+              Se Connecter
+            </button>
+          </form>
+        </div>
+
+
+        <div className="panel-illustration">
+          <h2>Nouveau ici ?</h2>
+          <p>
+            Créez un compte pour rejoindre notre communauté et profiter de tous nos services.
           </p>
-        )}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-bold">Nom d’utilisateur</label>
-            <input
-              type="text"
-              placeholder="Entrez votre nom d’utilisateur"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-turquoise"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-bold">Mot de passe</label>
-            <input
-              type="password"
-              placeholder="Entrez votre mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-turquoise"
-              required
-            />
-          </div>
-          <button type="submit" className="cta-button" aria-label="Se connecter">
-            <FontAwesomeIcon icon={faSignInAlt} className="mr-2 fa-icon" /> Se connecter
-          </button>
-        </form>
-        <p className="mt-4 text-center text-gray-900">
-          Pas de compte ?{' '}
-          <Link to="/signup" className="text-accent-turquoise hover:underline">
-            S’inscrire
+          <Link to="/signup" className="btn btn-outline">
+            S'inscrire
           </Link>
-        </p>
+          <img src={loginIllustration} alt="Illustration de connexion" className="illustration" />
+        </div>
       </div>
     </div>
   );

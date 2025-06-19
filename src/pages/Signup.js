@@ -3,14 +3,20 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import './style.css';
+import { faUserPlus,faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import './signup.css'; 
+import signupIllustration from '../assets/images/signup-illustration.png';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,59 +34,72 @@ const Signup = () => {
       toast.success('Inscription réussie ! Connectez-vous maintenant.');
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erreur lors de l’inscription');
-      toast.error('Échec de l’inscription');
+      const errorMessage =
+        err.response?.data?.username?.[0] || 
+        err.response?.data?.detail ||
+        'Erreur lors de l’inscription';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center section-bg relative">
-      <Link to="/" className="back-button" aria-label="Retour à la page d'accueil">
-        Retour
-      </Link>
-      <div className="card w-full max-w-md animate-slide-in">
-        <h2 className="text-3xl font-bold text-primary-blue mb-6 text-center flex items-center justify-center">
-          <FontAwesomeIcon icon={faUserPlus} className="mr-2 text-accent-gold animate-pulse" />
-          Inscription Client
-        </h2>
-        {error && (
-          <p className="text-red-800 mb-4 p-3 bg-red-200 rounded-lg">
-            {error}
+    <div className="signup-page-container">
+      <Link to="/" className="back-button1">
+              Retour
+            </Link>
+      <div className="signup-card">
+        <div className="panel-left">
+          <h2>Déjà parmi nous ?</h2>
+          <p>
+            Connectez-vous pour accéder à votre espace et continuer votre aventure.
           </p>
-        )}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-bold">Nom d’utilisateur</label>
-            <input
-              type="text"
-              placeholder="Choisissez un nom d’utilisateur"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-turquoise"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-primary-blue mb-2 font-bold">Mot de passe</label>
-            <input
-              type="password"
-              placeholder="Choisissez un mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-turquoise"
-              required
-            />
-          </div>
-          <button type="submit" className="cta-button" aria-label="S'inscrire">
-            <FontAwesomeIcon icon={faUserPlus} className="mr-2 fa-icon" /> S’inscrire
-          </button>
-        </form>
-        <p className="mt-4 text-center text-gray-900">
-          Déjà un compte ?{' '}
-          <Link to="/login" className="text-accent-turquoise hover:underline">
-            Se connecter
+          <Link to="/login" className="btn btn-outline">
+            Se Connecter
           </Link>
-        </p>
+          <img src={signupIllustration} alt="Illustration de fusée" className="illustration" />
+        </div>
+
+        <div className="panel-right">
+          <form onSubmit={handleSubmit} className="form-container" noValidate>
+            <h1 className="form-title">Créer un compte</h1>
+
+            {error && <p className="error-message">{error}</p>}
+            
+            <div className="input-wrapper">
+              <i className="fas fa-user input-icon"></i>
+              <input
+                id="username"
+                type="text"
+                placeholder="Nom d’utilisateur"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="input-wrapper">
+              <i className="fas fa-lock input-icon"></i>
+              <input
+                id="password"
+                type={isPasswordVisible ? 'text' : 'password'} 
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <FontAwesomeIcon
+                icon={isPasswordVisible ? faEyeSlash : faEye}
+                className="password-toggle-icon"
+                onClick={togglePasswordVisibility}
+              />
+            </div>
+
+            <button type="submit" className="btn btn-solid">
+              S’inscrire
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

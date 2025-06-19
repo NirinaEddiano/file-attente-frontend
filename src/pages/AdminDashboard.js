@@ -32,6 +32,7 @@ import {
   faDesktop,
   faUserFriends,
   faChartBar,
+  faUniversity, 
 } from '@fortawesome/free-solid-svg-icons';
 import './styles.css';
 import { Spiral } from 'ldrs/react';
@@ -69,11 +70,13 @@ const AdminDashboard = () => {
   const [isHistorySectionOpen, setIsHistorySectionOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [activeSubSection, setActiveSubSection] = useState('journaliere');
-
+  const [banks, setBanks] = useState([]); 
+  const [selectedBankId, setSelectedBankId] = useState(null);
+  const [allGuichets, setAllGuichets] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const bankId = 1;
+  
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -83,6 +86,8 @@ const AdminDashboard = () => {
     setIsMenuOpen(false);
   };
 
+  
+
   const fetchData = async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -90,20 +95,35 @@ const AdminDashboard = () => {
       navigate('/login');
       return;
     }
-
+  
     setLoading(true);
-
+    setError('');
+  
     try {
       const userResponse = await axios.get('http://localhost:8000/api/users/user/', {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       if (userResponse.data.role !== 'admin') {
         setError('Accès non autorisé. Seuls les administrateurs peuvent accéder à cette page.');
         navigate('/login');
         return;
       }
-
+  
+      const banksResponse = await axios.get('http://localhost:8000/api/banks/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (banksResponse.data.length === 0) {
+        setError('Aucune banque n\'a été trouvée dans le système.');
+        setLoading(false);
+        return;
+      }
+  
+      setBanks(banksResponse.data);
+      const currentBankId = banksResponse.data[0].id;
+      setSelectedBankId(currentBankId);
+  
       const [
         ticketsRes,
         guichetsRes,
@@ -113,29 +133,29 @@ const AdminDashboard = () => {
         guichetHistoryRes,
         guichetiersRes,
       ] = await Promise.all([
-        axios.get(`http://localhost:8000/api/tickets/?bank_id=${bankId}`, {
+        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichets/?bank_id=${bankId}`, {
+        axios.get(`http://localhost:8000/api/guichets/?bank_id=${currentBankId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/services/?bank_id=${bankId}`, {
+        axios.get(`http://localhost:8000/api/services/?bank_id=${currentBankId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/tickets/?bank_id=${bankId}&statut=attente`, {
+        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}&statut=attente`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/users/?role=client`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${bankId}`, {
+        axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${currentBankId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
         axios.get(`http://localhost:8000/api/users/?role=guichetier`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => ({ data: [] })),
       ]);
-
+  
       setTickets(ticketsRes.data);
       setGuichets(guichetsRes.data);
       setServices(servicesRes.data);
@@ -144,12 +164,13 @@ const AdminDashboard = () => {
       setGuichetHistory(guichetHistoryRes.data);
       setGuichetiers(guichetiersRes.data);
       setFilteredGuichetHistory(guichetHistoryRes.data);
-
+      fetchAllGuichets();
+  
       if (guichetsRes.data.length > 0 && activeSection === 'historique') {
         setActiveSubSection(`guichet-${guichetsRes.data[0].id}`);
         fetchFilteredGuichetHistory(guichetsRes.data[0].id);
       }
-
+  
       if (ticketsRes.data.length === 0 && guichetsRes.data.length === 0 && servicesRes.data.length === 0) {
         setError('Aucune donnée disponible. Vérifiez que des données existent pour cette banque.');
       }
@@ -161,16 +182,40 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllGuichets = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+  
+    try {
+      const response = await axios.get('http://localhost:8000/api/guichets/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAllGuichets(response.data);
+    } catch (err) {
+      setError('Erreur lors du chargement de la liste complète des guichets.');
+    }
+  };
+
+  useEffect(() => {
+    if (activeSection === 'guichets') {
+      fetchAllGuichets();
+    }
+  }, [activeSection]);
+
+  const filteredAllGuichets = allGuichets.filter((guichet) =>
+    (guichet.user?.username || '').toLowerCase().includes(guichetierSearch.toLowerCase()) ||
+    (guichet.number?.toString() || '').includes(guichetierSearch.toLowerCase())
+  );
+
   const fetchFilteredGuichetHistory = async (guichetId = null) => {
     const token = localStorage.getItem('access_token');
-    if (!token) {
-      setError('Session expirée. Veuillez vous reconnecter.');
-      navigate('/login');
+    if (!token || !selectedBankId) {
+      setError('ID de banque non sélectionné.');
       return;
     }
 
     try {
-      let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${bankId}`;
+      let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${selectedBankId}`;
       if (guichetId) {
         url += `&guichet_id=${guichetId}`;
       }
@@ -193,6 +238,7 @@ const AdminDashboard = () => {
   };
 
   const fetchStats = async (period) => {
+    if (!selectedBankId) return; 
     const token = localStorage.getItem('access_token');
     if (!token) {
       setError('Session expirée. Veuillez vous reconnecter.');
@@ -201,7 +247,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/stats/aggregate/?bank_id=${bankId}&period=${period}`, {
+      const response = await axios.get(`http://localhost:8000/api/stats/aggregate/?bank_id=${selectedBankId}&period=${period}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -265,7 +311,7 @@ const AdminDashboard = () => {
         navigate(`/admin/guichets/edit/${guichetId}`);
       } else if (action === 'delete') {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichet ?')) {
-          await axios.delete(`http://localhost:8000/api/guichets/${guichetId}/`, {
+          await axios.delete(`http:///localhost:8000/api/guichets/${guichetId}/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setGuichets(guichets.filter((guichet) => guichet.id !== guichetId));
@@ -342,7 +388,8 @@ const AdminDashboard = () => {
 
       <aside className={isMenuOpen ? 'active' : ''}>
         <div className="p-4">
-          <h2 className="text-xl font-bold">Admin Dashboard</h2>
+          <h2 className="text-xl font-bold">Tableau de bord</h2>
+          <h2 className="text-xl font-bold">d'Admin</h2>
         </div>
         <nav className="flex-1">
           <button
@@ -422,17 +469,17 @@ const AdminDashboard = () => {
           </button>
           {activeSection === 'historique' && (
             <div className="ml-4">
-              {guichets.map((guichet) => (
+              {allGuichets.map((guichet) => (
                 <button
                   key={guichet.id}
                   onClick={() => {
                     setActiveSubSection(`guichet-${guichet.id}`);
-                    fetchFilteredGuichetHistory(guichet.id);
+                    fetchFilteredGuichetHistory(guichet.id, guichet.bank.id)
                     closeMenu();
                   }}
                   className={`w-full text-left px-4 py-2 mb-2 flex items-center transition-colors ${activeSubSection === `guichet-${guichet.id}` ? 'bg-accent-turquoise text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
-                  Guichet {guichet.number}
+                   Guichet {guichet.number}
                 </button>
               ))}
             </div>
@@ -440,7 +487,7 @@ const AdminDashboard = () => {
         </nav>
         <button
           onClick={() => { handleLogout(); closeMenu(); }}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center mt-auto m-4"
+          className=" deconnexion bg-red-500  text-white px-4 py-2 rounded hover:bg-red-600 flex items-center mt-auto m-4"
         >
           <i className="fas fa-sign-out-alt mr-2"></i> Déconnexion
         </button>
@@ -535,7 +582,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Fréquentation journalière' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Fréquentation journalière' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Jours' } },
                       },
                     }}
@@ -565,7 +614,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Minutes' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Minutes' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Jours' } },
                       },
                     }}
@@ -698,7 +749,7 @@ const AdminDashboard = () => {
                           id="guichetierSearch"
                           value={guichetierSearch}
                           onChange={(e) => setGuichetierSearch(e.target.value)}
-                          placeholder="Nom du guichetier..."
+                          placeholder=" Nom du guichetier..."
                           className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none"
                         />
                         <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -722,6 +773,9 @@ const AdminDashboard = () => {
                             Guichet
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                           Banque
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                             Guichetier
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
@@ -736,16 +790,17 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredGuichets.length === 0 ? (
+                        {filteredAllGuichets.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="px-6 py-4 text-center">
+                            <td colSpan="6" className="px-6 py-4 text-center">
                               Aucun guichet disponible.
                             </td>
                           </tr>
                         ) : (
-                          filteredGuichets.map((guichet) => (
+                          filteredAllGuichets.map((guichet) => (
                             <tr key={guichet.id} className="hover:bg-gray-50 transition-colors">
                               <td className="px-6 py-4 whitespace-nowrap">{guichet.number}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">{guichet.bank?.name || 'N/A'}</td>
                               <td className="px-6 py-4 whitespace-nowrap">{guichet.user?.username || '-'}</td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
@@ -892,7 +947,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Heures' } },
                       },
                     }}
@@ -918,7 +975,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Guichets' } },
                       },
                     }}
@@ -951,7 +1010,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Jours' } },
                       },
                     }}
@@ -977,7 +1038,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Guichets' } },
                       },
                     }}
@@ -1010,7 +1073,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Clients' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Jours' } },
                       },
                     }}
@@ -1036,7 +1101,9 @@ const AdminDashboard = () => {
                     }}
                     options={{
                       scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Nombre de Tickets Traités' },ticks: {
+                          stepSize: 1
+                        } },
                         x: { title: { display: true, text: 'Guichets' } },
                       },
                     }}

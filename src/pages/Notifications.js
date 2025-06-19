@@ -3,6 +3,7 @@ import axios from '../utils/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ClientNavbar from './ClientNavbar';
+import BordDroite from './BordDroite';
 import './styles.css';
 
 const Notifications = () => {
@@ -51,12 +52,7 @@ const Notifications = () => {
           <h1 className="text-4xl font-bold text-primary-blue flex items-center">
             <i className="fas fa-bell mr-2 text-accent-gold animate-pulse"></i> Notifications
           </h1>
-          <Link
-            to="/home"
-            className="secondary-button"
-          >
-            Retour
-          </Link>
+          
         </div>
         {error && (
           <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 animate-slide-in">
@@ -104,6 +100,7 @@ const Notifications = () => {
           </div>
         )}
       </main>
+      <BordDroite />
     </div>
   );
 };

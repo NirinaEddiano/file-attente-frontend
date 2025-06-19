@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+
 * {
     margin: 0;
     padding: 0;
@@ -13,18 +13,16 @@
     -moz-osx-font-smoothing: auto;
   }
   
-  /* Font Import */
+ 
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
   @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-  
-  /* Preload Fonts */
+
   @font-face {
     font-family: 'Poppins';
     src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
     font-display: swap;
   }
-  
-  /* Root Variables */
+
   :root {
     --primary-blue: #1e3a8a;
     --accent-gold: #facc15;
@@ -32,7 +30,7 @@
     --bg-light: #f3f4f6;
   }
   
-  /* Utility Classes */
+
   .bg-primary-blue { background-color: var(--primary-blue); }
   .text-primary-blue { color: var(--primary-blue); }
   .bg-accent-gold { background-color: var(--accent-gold); }
@@ -42,7 +40,7 @@
   .bg-bg-light { background-color: var(--bg-light); }
   
   .text-gray-900 {
-    color: #000000; /* True black for maximum contrast */
+    color: #000000;
     font-weight: 500;
     font-size: 1.2rem;
   }

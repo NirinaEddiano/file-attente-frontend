@@ -1,76 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faArrowRight, faTicketAlt, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import bankAlphaLogo from '../assets/images/bank-alpha-logo.jpg';
 import bankBetaLogo from '../assets/images/bank-beta-logo.jpg';
 import bankGammaLogo from '../assets/images/bank-gamma-logo.jpg';
-import './styles.css';
+import './Vitrines.css';
 
 const NosPartenaires = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      document.querySelectorAll('[data-scroll]').forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight - 100 && rect.bottom > 100;
+        if (isVisible) el.classList.add('visible');
+      });
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div className="min-h-screen text-primary-blue relative overflow-hidden partners-page">
-      <header className="header">
-        <div className="container header-content">
-          <h1>
-            <FontAwesomeIcon icon={faTicketAlt} className="mr-2" /> QueueMaster
-          </h1>
-          <nav className={isMenuOpen ? 'active' : ''}>
-            <Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>Accueil</Link>
-            <Link to="/pourquoi-queuemaster" className={location.pathname === '/pourquoi-queuemaster' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>QueueMaster</Link>
-            <Link to="/nos-partenaires" className={location.pathname === '/nos-partenaires' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>Partenaires</Link>
-            <Link to="/faq" className={location.pathname === '/faq' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>FAQ</Link>
-            <button onClick={() => navigate('/login')} className="adjusted-secondary-button" aria-label="Se connecter à QueueMaster">
-              <FontAwesomeIcon icon={faSignInAlt} className="mr-2" /> Connexion
-            </button>
-            <button onClick={() => navigate('/signup')} className="cta-button" aria-label="S'inscrire à QueueMaster">
-              <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> S'inscrire
-            </button>
-          </nav>
-          <FontAwesomeIcon icon={faBars} className="menu-toggle" onClick={toggleMenu} />
-        </div>
-      </header>
+    <div className="vitrine-wrapper">
+      <header className="vitrine-header">
+         <div className="vitrine-container vitrine-header-content">
+                  <h1><FontAwesomeIcon icon={faTicketAlt} className="mr-2" /> QueueMaster</h1>
+                  <nav className={isMenuOpen ? 'vitrine-nav vitrine-nav-active' : 'vitrine-nav'}>
+                    <Link to="/"  onClick={() => setIsMenuOpen(false)}>Accueil</Link>
+                    <Link to="/pourquoi-queuemaster" onClick={() => setIsMenuOpen(false)}>QueueMaster</Link>
+                    <Link to="/nos-partenaires" className={location.pathname === '/nos-partenaires' ? 'vitrine-nav-active-link' : ''} onClick={() => setIsMenuOpen(false)}>Partenaires</Link>
+                    <Link to="/faq" onClick={() => setIsMenuOpen(false)}>FAQ</Link>
+                    <button onClick={() => navigate('/login')} className="vitrine-secondary-button" aria-label="Se connecter"><FontAwesomeIcon icon={faSignInAlt} /> Connexion</button>
+                    <button onClick={() => navigate('/signup')} className="vitrine-cta-button" aria-label="S'inscrire">S'inscrire gratuitement <FontAwesomeIcon icon={faArrowRight} className="ml-2" /></button>
+                  </nav>
+                  <FontAwesomeIcon icon={faBars} className="vitrine-menu-toggle" onClick={toggleMenu} />
+                </div>
+              </header>
       <main>
-        <section className="partners animate-fade-in">
-          <div className="container">
-            <h3 className="text-3xl font-bold text-primary-blue mb-12 text-center">Nos Partenaires</h3>
-            <div className="partners-grid">
-              <div className="partner-card">
-                <img src={bankAlphaLogo} alt="Bank Alpha" className="w-24 h-24 object-contain mb-4 rounded-lg" />
-                <h4>Bank Trust</h4>
-                <p>Bank Trust est une institution financière de premier plan qui se consacre à offrir des services bancaires innovants à ses clients. Fondée il y a plus de 50 ans, Bank Alpha a toujours été à l’avant-garde de la technologie bancaire, offrant des solutions qui simplifient la vie de ses clients. En partenariat avec QueueMaster, Bank Alpha a intégré notre système de gestion de files d’attente pour réduire les temps d’attente et améliorer l’expérience client dans ses agences. Que vous ayez besoin d’ouvrir un compte, de demander un prêt, ou de gérer vos finances, Bank Alpha vous garantit un service rapide et efficace grâce à QueueMaster.</p>
-              </div>
-              <div className="partner-card">
-                <img src={bankBetaLogo} alt="Bank Beta" className="w-24 h-24 object-contain mb-4 rounded-lg" />
-                <h4>Bank Horizon</h4>
-                <p>Bank Horizon est connue pour son engagement envers la satisfaction client et ses services bancaires accessibles. Avec des agences réparties dans tout le pays, Bank Beta dessert une clientèle diversifiée, allant des particuliers aux grandes entreprises. En collaborant avec QueueMaster, Bank Beta a transformé la manière dont ses clients interagissent avec ses services en agence. Notre système de ticketing numérique permet aux clients de Bank Beta de planifier leurs visites à l’avance, réduisant ainsi les temps d’attente et augmentant l’efficacité des opérations en agence. Faites confiance à Bank Beta et QueueMaster pour une expérience bancaire sans stress.</p>
-              </div>
-              <div className="partner-card partner-card-centered">
-                <img src={bankGammaLogo} alt="Bank Gamma" className="w-24 h-24 object-contain mb-4 rounded-lg" />
-                <h4>Bank NovaBank</h4>
-                <p>Bank NovaBank est une banque moderne qui met l’accent sur l’innovation et la durabilité. Depuis sa création, elle s’est engagée à offrir des solutions bancaires qui répondent aux besoins évolutifs de ses clients tout en promouvant des pratiques durables. En intégrant QueueMaster dans ses agences, Bank Gamma a considérablement réduit les files d’attente, permettant à ses clients de gagner du temps et de profiter d’un service plus personnalisé. Que vous soyez un client particulier ou professionnel, Bank Gamma et QueueMaster travaillent ensemble pour vous offrir une expérience bancaire fluide et agréable.</p>
-              </div>
+        <section className="vitrine-partners">
+          <div className="vitrine-container">
+            <h3 className="vitrine-text-2xl vitrine-font-semibold vitrine-text-primary-blue" data-scroll="slide-up">Nos Partenaires</h3>
+            <div className="vitrine-partners-grid">                    
+              <div className="vitrine-partner-card" data-scroll="zoom"><img src={bankAlphaLogo} alt="Bank Alpha" className="vitrine-img-full vitrine-h-48 vitrine-object-cover vitrine-mb-4" /><h4>Bank of Africa</h4><p>Bank of Africa est une institution financière de référence à Madagascar, reconnue pour ses solutions bancaires innovantes et son engagement envers ses clients. Avec une présence solide à Antananarivo et dans d'autres régions, Bank of Africa propose une gamme complète de services, allant de l'ouverture de comptes aux crédits et opérations de change. En partenariat avec QueueMaster, Bank of Africa a intégré notre système de gestion de files d'attente pour optimiser l'expérience client en agence. Grâce à QueueMaster, les temps d'attente sont réduits, offrant un service rapide et efficace pour toutes vos opérations bancaires.</p></div>
+              <div className="vitrine-partner-card" data-scroll="zoom"><img src={bankBetaLogo} alt="Bank Beta" className="vitrine-img-full vitrine-h-48 vitrine-object-cover vitrine-mb-4" /><h4>BNI Madagascar</h4><p>BNI Madagascar est une banque emblématique, engagée à fournir des services bancaires accessibles et de qualité à une clientèle variée, des particuliers aux entreprises. Avec un réseau d'agences couvrant tout Madagascar, BNI Madagascar se distingue par son approche client-centrée. En collaborant avec QueueMaster, BNI Madagascar a révolutionné la gestion des files d'attente dans ses agences. Notre système de ticketing numérique permet aux clients de planifier leurs visites, réduisant les temps d'attente et améliorant l'efficacité des services. Avec BNI Madagascar et QueueMaster, profitez d'une expérience bancaire fluide et sans stress.</p></div>
+              <div className="vitrine-partner-card" data-scroll="zoom"><img src={bankGammaLogo} alt="Bank Gamma" className="vitrine-img-full vitrine-h-48 vitrine-object-cover vitrine-mb-4" /><h4>BFV Madagascar</h4><p>BFV Madagascar est une banque moderne, axée sur l'innovation et la satisfaction de ses clients. Depuis des décennies, elle offre des solutions bancaires adaptées aux besoins des Malgaches, incluant les transferts d'argent, les comptes d'épargne et les services aux entreprises. En intégrant QueueMaster dans ses agences, BFV Madagascar a transformé l'expérience client en réduisant les files d'attente et en offrant un service plus personnalisé. Que vous soyez un particulier ou un professionnel, BFV Madagascar et QueueMaster vous garantissent une gestion bancaire rapide, efficace et agréable.</p></div>
             </div>
-            <Link to="/signup" className="cta-button w-full sm:w-auto mt-12 mx-auto block text-center">
-              <FontAwesomeIcon icon={faArrowRight} className="mr-2" /> Commencer maintenant
-            </Link>
+            <button onClick={() => navigate('/signup')} className="vitrine-cta-button vitrine-w-full vitrine-sm-w-auto vitrine-mt-6" aria-label="Commencer maintenant"><FontAwesomeIcon icon={faArrowRight} /> Commencer maintenant</button>
           </div>
         </section>
       </main>
-      <footer className="footer">
-        <div className="container">
+      <footer className="vitrine-footer">
+        <div className="vitrine-container">
           <p>© 2025 QueueMaster par RAMIADANARIVO Nirina Eddiano. Tous droits réservés.</p>
-          <div className="footer-links">
-            <Link to="/contact">Contact</Link>
-          </div>
+          <div className="vitrine-footer-links"><Link to="/contact">Contact</Link></div>
         </div>
       </footer>
     </div>

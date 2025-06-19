@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from '../utils/axiosConfig';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ClientNavbar from './ClientNavbar';
 import { Spiral } from 'ldrs/react';
 import { QRCodeCanvas } from 'qrcode.react';
-import './styles.css';
+import './SuiviTicket.css';
 
 const SuiviTicket = () => {
   const [guichets, setGuichets] = useState([]);
@@ -17,7 +17,7 @@ const SuiviTicket = () => {
   const [alertedTickets, setAlertedTickets] = useState(new Set());
   const [nowServing, setNowServing] = useState(null);
   const [ticketStatus, setTicketStatus] = useState({});
-  const [isInitialLoading, setIsInitialLoading] = useState(true); // For initial page load only
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [showQRCode, setShowQRCode] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -196,7 +196,7 @@ const SuiviTicket = () => {
 
     const fetchData = async (isInitial = false) => {
       if (isInitial) {
-        setIsInitialLoading(true); // Show loading only for the first load
+        setIsInitialLoading(true);
       }
 
       try {
@@ -309,14 +309,12 @@ const SuiviTicket = () => {
         }
       } finally {
         if (isInitial) {
-          setIsInitialLoading(false); // Hide loading after initial fetch
+          setIsInitialLoading(false);
         }
       }
     };
 
-    // Initial fetch
     fetchData(true);
-    // Periodic fetch in the background (every 30 seconds)
     const interval = setInterval(() => fetchData(false), 30000);
 
     return () => {
@@ -375,62 +373,58 @@ const SuiviTicket = () => {
     setShowQRCode(ticketId === showQRCode ? null : ticketId);
   };
 
-  // Show loading spinner only for the initial page load
   if (isInitialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-light">
-        <div className="text-gray-600 text-lg mr-4">Chargement...</div>
-        <Spiral size="40" speed="0.9" color="blue" />
+      <div className="container">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-gray-600 text-lg mr-4">Chargement...</div>
+          <Spiral size="40" speed="0.9" color={getComputedStyle(document.documentElement).getPropertyValue('--primary-blue')} />
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      <div className={`min-h-screen bg-bg-light ${showQRCode ? 'filter blur-sm' : ''}`}>
+      <div className={`container ${showQRCode ? 'filter blur-sm' : ''}`}>
         <ClientNavbar />
-        <main className="p-8 max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-8 animate-slide-in">
-            <h1 className="text-4xl font-bold text-primary-blue flex items-center">
-              <i className="fas fa-ticket-alt mr-2 text-accent-gold animate-pulse"></i> Mes Files d’Attente
-            </h1>
-            <Link to="/home" className="secondary-button flex items-center">
-              <i className="fas fa-arrow-left mr-2"></i> Retour
-            </Link>
-          </div>
+        <main className="main">
+          <h1 className="text-2xl font-bold text-primary-blue mb-6 animate-slide-in flex items-center">
+            <i className="fas fa-ticket-alt mr-2 text-accent-gold animate-pulse"></i> Mes Files d’Attente
+          </h1>
           {nowServing && (
-            <div className="card gold-border mb-8 animate-slide-in bg-gradient-to-r from-accent-turquoise to-accent-gold text-white p-4 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold flex items-center">
+            <div className="now-serving animate-slide-in">
+              <h2 className="text-xl font-semibold flex items-center">
                 <i className="fas fa-bullhorn mr-2 animate-pulse"></i> Maintenant servi : Ticket {nowServing.numero}
               </h2>
               <p className="text-lg">Service : {nowServing.service.name}</p>
             </div>
           )}
-          <div className="card gold-border mb-8 animate-slide-in">
-            <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+          <div className="card gold-border mb-6 animate-slide-in">
+            <h2 className="text-xl font-semibold text-primary-blue mb-4 flex items-center">
               <i className="fas fa-info-circle mr-2 text-accent-gold animate-pulse"></i> Guide
             </h2>
-            <div className="p-4 bg-bg-light rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-semibold text-primary-blue mb-2 flex items-center">
-                <i className="fas fa-list-ol mr-2 text-accent-turquoise"></i> Étape 6 : Suivez votre position
+                <i className="fas fa-list-ol mr-2"></i> Étape 6 : Suivez votre position
               </h3>
               <p className="text-gray-600">
                 Votre position dans la file est mise à jour en temps réel. Une alerte apparaîtra lorsque vous serez proche de votre tour.
               </p>
-              <p className="text-accent-turquoise mt-2 flex items-center">
+              <p className="text-primary-blue mt-2 flex items-center">
                 <i className="fas fa-lightbulb mr-1"></i> <strong>Astuce :</strong> Planifiez une visite future via <em>Rendez-vous</em>.
               </p>
             </div>
           </div>
           {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 animate-slide-in flex items-center">
-              <i className="fas fa-exclamation-triangle mr-2 text-red-700"></i> {error}
+            <div className="error-message animate-slide-in">
+              <i className="fas fa-exclamation-triangle mr-2"></i> {error}
             </div>
           )}
           {userTickets.length === 0 && !error ? (
             <div className="card gold-border animate-slide-in">
               <p className="text-gray-600 flex items-center">
-                <i className="fas fa-ticket-alt mr-2 text-accent-turquoise"></i> Vous n’avez aucun ticket actif.
+                <i className="fas fa-ticket-alt mr-2 text-primary-blue"></i> Vous n’avez aucun ticket actif.
               </p>
             </div>
           ) : (
@@ -448,24 +442,24 @@ const SuiviTicket = () => {
               const displayStatus = ticketStatus[ticket.id] || ticket.statut;
 
               return (
-                <div key={ticket.id} className="card gold-border mb-8 animate-slide-in">
-                  <h2 className="text-2xl font-semibold text-primary-blue mb-4 flex items-center">
+                <div key={ticket.id} className="card gold-border animate-slide-in">
+                  <h2 className="text-xl font-semibold text-primary-blue mb-4 flex items-center">
                     <i className="fas fa-users mr-2 text-accent-gold animate-pulse"></i>
                     File d’attente - {ticket.service.name} ({ticket.bank.name}) {guichet ? `(Guichet ${guichet.number})` : ''}
                   </h2>
                   <div className="mb-4">
-                    <div className="flex items-center justify-between bg-bg-light p-4 rounded-lg">
+                    <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
                       <div>
                         <p className="font-medium text-primary-blue flex items-center">
-                          <i className="fas fa-desktop mr-2 text-accent-turquoise"></i> Guichet {guichet?.number || 'Non assigné'}
+                          <i className="fas fa-desktop mr-2"></i> Guichet {guichet?.number || 'Non assigné'}
                         </p>
                         <p className="text-gray-600">{ticket.service.name}</p>
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-semibold ${
                           guichet?.status === 'open'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-red-50 text-red-600'
                         }`}
                       >
                         {guichet?.status ? guichet.status.charAt(0).toUpperCase() + guichet.status.slice(1) : 'Inconnu'}
@@ -474,7 +468,7 @@ const SuiviTicket = () => {
                   </div>
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-primary-blue mb-2">Votre ticket</h3>
-                    <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center bg-bg-light p-4 rounded-lg ${displayStatus === 'traite' ? 'bg-green-50' : ''}`}>
+                    <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 p-4 rounded-lg ${displayStatus === 'traite' ? 'bg-green-100' : ''}`}>
                       <div className="mb-4 sm:mb-0">
                         <p className="font-medium text-primary-blue">Ticket: {ticket.numero}</p>
                         <p className="text-gray-600">
@@ -490,19 +484,19 @@ const SuiviTicket = () => {
                         <p className="text-gray-600">Position: {position}</p>
                         <p className="text-gray-600">Tickets restants: {serviceQueue.length}</p>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         {displayStatus === 'attente' && (
                           <>
                             <button
                               onClick={() => toggleQRCode(ticket.id)}
-                              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                              className="ticket-button"
                               aria-label={`Afficher le QR code pour le ticket ${ticket.numero}`}
                             >
                               <i className="fas fa-qrcode mr-2"></i> Afficher QR Code
                             </button>
                             <button
                               onClick={() => handleCancel(ticket.id)}
-                              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center"
+                              className="cancel-button"
                               aria-label={`Annuler le ticket ${ticket.numero}`}
                             >
                               <i className="fas fa-times mr-2"></i> Annuler
@@ -514,9 +508,9 @@ const SuiviTicket = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-primary-blue mb-2">Progression de la file</h3>
-                    <div className="w-full bg-gray-200 rounded h-2.5">
+                    <div className="progress-bar">
                       <div
-                        className="bg-primary-blue h-2.5 rounded"
+                        className="progress-bar-fill"
                         style={{ width: `${progress}%` }}
                       ></div>
                     </div>
@@ -534,7 +528,7 @@ const SuiviTicket = () => {
                           <div
                             key={queueTicket.id}
                             className={`p-4 rounded-lg border ${
-                              queueTicket.statut === 'traite' ? 'bg-green-50' : 'bg-gray-50'
+                              queueTicket.statut === 'traite' ? 'bg-green-100' : 'bg-gray-50'
                             }`}
                           >
                             <p className="font-semibold text-primary-blue">
@@ -562,8 +556,8 @@ const SuiviTicket = () => {
       </div>
 
       {showQRCode && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+        <div className="qr-code-overlay">
+          <div className="qr-code-container">
             <h3 className="text-lg font-semibold text-primary-blue mb-4">Votre QR Code</h3>
             {userTickets.map((ticket) =>
               ticket.id === showQRCode ? (
@@ -572,7 +566,7 @@ const SuiviTicket = () => {
                   <p className="mt-4 text-gray-600">Montrez ce QR code au guichet</p>
                   <button
                     onClick={() => toggleQRCode(ticket.id)}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                    className="ticket-button"
                     aria-label={`Masquer le QR code pour le ticket ${ticket.numero}`}
                   >
                     <i className="fas fa-eye-slash mr-2"></i> Masquer QR Code
