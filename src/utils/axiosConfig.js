@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: 'https://file-attente-back.onrender.com',
 });
 
 const publicEndpoints = ['/api/stats/', '/api/token/', '/api/users/register/'];
@@ -34,7 +34,7 @@ instance.interceptors.response.use(
           console.error('Jeton de rafraîchissement manquant');
           throw new Error('Jeton de rafraîchissement manquant');
         }
-        const response = await axios.post('http://localhost:8000/api/token/refresh/', {
+        const response = await axios.post('https://file-attente-back.onrender.com/api/token/refresh/', {
           refresh: refreshToken,
         });
         const { access } = response.data;
