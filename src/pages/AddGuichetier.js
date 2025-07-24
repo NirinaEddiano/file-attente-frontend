@@ -24,7 +24,7 @@ const AddGuichetier = () => {
 
     try {
       await axios.post(
-        'http://localhost:8000/guichetiers/',
+        'https://file-attente-back.onrender.com/guichetiers/',
         { username, email, password, role: 'guichetier' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
