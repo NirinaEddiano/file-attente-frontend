@@ -32,10 +32,10 @@ const AddGuichet = () => {
     const fetchData = async () => {
       try {
         const [servicesRes, usersRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/services/?bank_id=1', {
+          axios.get('https://file-attente-back.onrender.com/api/services/?bank_id=1', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:8000/api/users/?role=guichetier', {
+          axios.get('https://file-attente-back.onrender.com/api/users/?role=guichetier', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -67,7 +67,7 @@ const AddGuichet = () => {
     }
 
     try {
-      await axios.post('http://localhost:8000/api/admin/guichets/add/', formData, {
+      await axios.post('https://file-attente-back.onrender.com/api/admin/guichets/add/', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/admin'); // Redirect back to dashboard
