@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bar, Line } from 'react-chartjs-2';
@@ -32,7 +32,6 @@ import {
   faDesktop,
   faUserFriends,
   faChartBar,
-  faUniversity, 
 } from '@fortawesome/free-solid-svg-icons';
 import './styles.css';
 import { Spiral } from 'ldrs/react';
@@ -44,10 +43,7 @@ const AdminDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [guichets, setGuichets] = useState([]);
-  const [services, setServices] = useState([]);
-  const [queueTickets, setQueueTickets] = useState([]);
   const [clients, setClients] = useState([]);
-  const [guichetHistory, setGuichetHistory] = useState([]);
   const [guichetiers, setGuichetiers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -70,7 +66,6 @@ const AdminDashboard = () => {
   const [isHistorySectionOpen, setIsHistorySectionOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [activeSubSection, setActiveSubSection] = useState('journaliere');
-  const [banks, setBanks] = useState([]); 
   const [selectedBankId, setSelectedBankId] = useState(null);
   const [allGuichets, setAllGuichets] = useState([]);
   const navigate = useNavigate();
@@ -86,9 +81,51 @@ const AdminDashboard = () => {
     setIsMenuOpen(false);
   };
 
+  const fetchAllGuichets = useCallback(async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
   
+    try {
+      const response = await axios.get('http://localhost:8000/api/guichets/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAllGuichets(response.data);
+    } catch (err) {
+      setError('Erreur lors du chargement de la liste complète des guichets.');
+    }
+  }, []); // Cette fonction n'a pas de dépendances réactives
 
-  const fetchData = async () => {
+  const fetchFilteredGuichetHistory = useCallback(async (guichetId = null) => {
+    const token = localStorage.getItem('access_token');
+    if (!token || !selectedBankId) {
+      setError('ID de banque non sélectionné.');
+      return;
+    }
+
+    try {
+      let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${selectedBankId}`;
+      if (guichetId) {
+        url += `&guichet_id=${guichetId}`;
+      }
+      if (startDate) {
+        url += `&start_date=${startDate}`;
+      }
+      if (endDate) {
+        url += `&end_date=${endDate}`;
+      }
+
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setFilteredGuichetHistory(response.data);
+    } catch (err) {
+      setError('Erreur lors de la récupération de l’historique filtré: ' + (err.response?.data?.error || err.message));
+      setFilteredGuichetHistory([]);
+    }
+  }, [selectedBankId, startDate, endDate]); 
+
+  const fetchData = useCallback(async () => {
     const token = localStorage.getItem('access_token');
     if (!token) {
       setError('Session expirée. Veuillez vous reconnecter.');
@@ -119,125 +156,66 @@ const AdminDashboard = () => {
         setLoading(false);
         return;
       }
-  
-      setBanks(banksResponse.data);
+      
       const currentBankId = banksResponse.data[0].id;
       setSelectedBankId(currentBankId);
   
       const [
         ticketsRes,
         guichetsRes,
-        servicesRes,
-        queueTicketsRes,
         clientsRes,
         guichetHistoryRes,
         guichetiersRes,
       ] = await Promise.all([
-        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichets/?bank_id=${currentBankId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/services/?bank_id=${currentBankId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}&statut=attente`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/users/?role=client`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${currentBankId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/users/?role=guichetier`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/guichets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/users/?role=client`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`http://localhost:8000/api/users/?role=guichetier`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
       ]);
   
       setTickets(ticketsRes.data);
       setGuichets(guichetsRes.data);
-      setServices(servicesRes.data);
-      setQueueTickets(queueTicketsRes.data);
       setClients(clientsRes.data);
-      setGuichetHistory(guichetHistoryRes.data);
       setGuichetiers(guichetiersRes.data);
       setFilteredGuichetHistory(guichetHistoryRes.data);
       fetchAllGuichets();
   
-      if (guichetsRes.data.length > 0 && activeSection === 'historique') {
-        setActiveSubSection(`guichet-${guichetsRes.data[0].id}`);
-        fetchFilteredGuichetHistory(guichetsRes.data[0].id);
+      if (guichetsRes.data.length > 0 && location.pathname.includes('/admin')) {
+        if(activeSection === 'historique'){
+            setActiveSubSection(`guichet-${guichetsRes.data[0].id}`);
+            fetchFilteredGuichetHistory(guichetsRes.data[0].id);
+        }
       }
   
-      if (ticketsRes.data.length === 0 && guichetsRes.data.length === 0 && servicesRes.data.length === 0) {
+      if (ticketsRes.data.length === 0 && guichetsRes.data.length === 0) {
         setError('Aucune donnée disponible. Vérifiez que des données existent pour cette banque.');
       }
     } catch (err) {
       setError('Erreur lors de la récupération des données: ' + (err.response?.data?.error || err.message));
-      navigate('/login');
+      if (err.response?.status === 401) navigate('/login');
     } finally {
       setLoading(false);
     }
-  };
+    // CORRECTION 2: Ajout des fonctions stabilisées au tableau de dépendances
+  }, [navigate, location.pathname, activeSection, fetchAllGuichets, fetchFilteredGuichetHistory]);
 
-  const fetchAllGuichets = async () => {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
   
-    try {
-      const response = await axios.get('http://localhost:8000/api/guichets/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAllGuichets(response.data);
-    } catch (err) {
-      setError('Erreur lors du chargement de la liste complète des guichets.');
-    }
-  };
 
   useEffect(() => {
     if (activeSection === 'guichets') {
       fetchAllGuichets();
     }
-  }, [activeSection]);
+  }, [activeSection,fetchAllGuichets]);
 
   const filteredAllGuichets = allGuichets.filter((guichet) =>
     (guichet.user?.username || '').toLowerCase().includes(guichetierSearch.toLowerCase()) ||
     (guichet.number?.toString() || '').includes(guichetierSearch.toLowerCase())
   );
 
-  const fetchFilteredGuichetHistory = async (guichetId = null) => {
-    const token = localStorage.getItem('access_token');
-    if (!token || !selectedBankId) {
-      setError('ID de banque non sélectionné.');
-      return;
-    }
+ 
 
-    try {
-      let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${selectedBankId}`;
-      if (guichetId) {
-        url += `&guichet_id=${guichetId}`;
-      }
-      if (startDate) {
-        url += `&start_date=${startDate}`;
-      }
-      if (endDate) {
-        url += `&end_date=${endDate}`;
-      }
-
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setFilteredGuichetHistory(response.data);
-    } catch (err) {
-      setError('Erreur lors de la récupération de l’historique filtré: ' + (err.response?.data?.error || err.message));
-      setFilteredGuichetHistory([]);
-    }
-  };
-
-  const fetchStats = async (period) => {
+  const fetchStats = useCallback (async (period) => {
     if (!selectedBankId) return; 
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -274,14 +252,14 @@ const AdminDashboard = () => {
     } catch (err) {
       setError('Erreur lors de la récupération des statistiques: ' + (err.response?.data?.error || err.message));
     }
-  };
+  }, [navigate, selectedBankId]);
 
   useEffect(() => {
     fetchData();
     fetchStats('daily');
     fetchStats('weekly');
     fetchStats('monthly');
-  }, [navigate, location]);
+  }, [navigate, location,fetchData, fetchStats]);
 
   useEffect(() => {
     const totalTickets = tickets.length;
@@ -357,9 +335,6 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const filteredGuichets = guichets.filter((guichet) =>
-    guichet.user?.username?.toLowerCase().includes(guichetierSearch.toLowerCase())
-  );
 
   const filteredClients = clients.filter((client) =>
     client.username.toLowerCase().includes(clientSearch.toLowerCase())

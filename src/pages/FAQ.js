@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle, faBars, faArrowRight, faTicketAlt, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle, faBars, faArrowRight, faTicketAlt, faSignInAlt  } from '@fortawesome/free-solid-svg-icons';
 import './Vitrines.css';
 
 const FAQ = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef ,useCallback} from 'react';
 import axios from '../utils/axiosConfig';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -31,7 +31,29 @@ const SuiviTicket = () => {
 
   const WS_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8000';
 
-  const connectWebSocket = async (bankId) => {
+  const refreshAccessToken = useCallback(async () => {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      console.error('Aucun jeton de rafraîchissement disponible');
+      toast.error('Session expirée. Veuillez vous reconnecter.');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      navigate('/login');
+      return null;
+    }
+    try {
+      const response = await axios.post('/api/token/refresh/', { refresh: refreshToken });
+      const newAccessToken = response.data.access;
+      localStorage.setItem('access_token', newAccessToken);
+      return newAccessToken;
+    } catch (err) {
+      toast.error('Session expirée. Veuillez vous reconnecter.');
+      navigate('/login');
+      return null;
+    }
+  }, [navigate]);
+
+  const connectWebSocket = useCallback(async (bankId) => {
     if (!bankId || !isMounted.current) {
       console.log('WebSocket non connecté : paramètres manquants ou composant démonté');
       return;
@@ -48,18 +70,9 @@ const SuiviTicket = () => {
       await axios.get('/api/users/user/');
     } catch (err) {
       if (err.response?.status === 401) {
-        try {
-          const refreshResponse = await axios.post('/api/token/refresh/', {
-            refresh: localStorage.getItem('refresh_token'),
-          });
-          token = refreshResponse.data.access;
-          localStorage.setItem('access_token', token);
-        } catch (refreshErr) {
-          toast.error('Session expirée, veuillez vous reconnecter');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          navigate('/login');
-          return;
+        token = await refreshAccessToken();
+        if (!token) {
+            return;
         }
       } else {
         console.log('Erreur lors de la vérification du token:', err);
@@ -77,7 +90,6 @@ const SuiviTicket = () => {
     wsRef.current.onopen = () => {
       console.log('WebSocket connecté pour bank_id:', bankId, serviceId ? `service_id: ${serviceId}` : 'tous services');
       reconnectAttempts.current = 0;
-      toast.success('Connexion WebSocket établie');
     };
 
     wsRef.current.onmessage = (event) => {
@@ -85,7 +97,6 @@ const SuiviTicket = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'connection_established') {
-          console.log('Connexion WebSocket confirmée:', data.message);
         } else if (data.type === 'ticket_update' && isMounted.current) {
           const ticket = data.ticket;
           const ticketUser = typeof ticket.user === 'string' ? ticket.user.replace(/\s*\(Client\)/, '') : ticket.user?.username || 'Client';
@@ -183,7 +194,7 @@ const SuiviTicket = () => {
         toast.error('Connexion WebSocket perdue, veuillez rafraîchir la page');
       }
     };
-  };
+  }, [navigate, serviceId, WS_BASE_URL, currentUser, guichets, alertThreshold, alertedTickets, refreshAccessToken]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -324,7 +335,7 @@ const SuiviTicket = () => {
       }
       clearInterval(interval);
     };
-  }, [navigate, bankIdFromUrl, serviceId]);
+  }, [navigate, bankIdFromUrl, serviceId, alertThreshold, alertedTickets, connectWebSocket]);
 
   const handleCancel = async (ticketId) => {
     try {

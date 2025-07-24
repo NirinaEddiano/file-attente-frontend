@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../utils/axiosConfig';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ClientNavbar from './ClientNavbar';
 import BordDroite from './BordDroite';
@@ -12,7 +12,6 @@ const RendezVous = () => {
   const [form, setForm] = useState({ bankId: '', serviceId: '', date: '', time: '' });
   const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
-  const [username, setUsername] = useState('');
   const [activeTab, setActiveTab] = useState('form');
   const navigate = useNavigate();
 
@@ -25,8 +24,6 @@ const RendezVous = () => {
           navigate('/login');
           return;
         }
-        const userResponse = await axios.get('/api/users/user/');
-        setUsername(userResponse.data.username);
         const bankResponse = await axios.get('/api/banks/');
         setBanks(bankResponse.data);
         const appointmentResponse = await axios.get('/api/appointments/list/');

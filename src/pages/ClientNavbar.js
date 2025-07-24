@@ -93,7 +93,7 @@ const ClientNavbar = () => {
                 alt="Profile"
                 className="profile-image"
               />
-              
+               <span className="profile-name">{username}</span>
             </div>
             <button
               onClick={handleLogout}

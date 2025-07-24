@@ -1315,6 +1315,7 @@ button, input {
   font-weight: 800;
   background: linear-gradient(90deg, #fff, #facc15);
   -webkit-background-clip: text;
+  background-clip: text; 
   -webkit-text-fill-color: transparent;
   display: flex;
   align-items: center;
@@ -1394,11 +1395,11 @@ button, input {
 .adjusted-secondary-button {
   background: #ffffff;
   color: #1e3a8a;
-  padding: 10px 30px; /* Increased width to accommodate text */
+  padding: 10px 30px;
   border-radius: 25px;
   font-weight: 700;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 40px; /* Match height with cta-button */
+  height: 40px; 
 }
 
 .adjusted-secondary-button:hover {
@@ -1456,6 +1457,7 @@ button, input {
   margin-bottom: 24px;
   background: linear-gradient(90deg, #fff, #facc15);
   -webkit-background-clip: text;
+  background-clip: text; 
   -webkit-text-fill-color: transparent;
   animation: fadeIn 1.2s ease-out;
 }

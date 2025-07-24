@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faArrowRight, faTicketAlt, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faArrowRight, faTicketAlt, faSignInAlt  } from '@fortawesome/free-solid-svg-icons';
 import simplicityBg from '../assets/images/simplicity-bg.jpg';
 import reliabilityBg from '../assets/images/reliability-bg.jpg';
 import comfortBg from '../assets/images/comfort-bg.jpg';

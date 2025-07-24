@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,useCallback  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from '../utils/axiosConfig';
@@ -17,7 +17,7 @@ const AppelTicket = () => {
   const [history, setHistory] = useState([]);
   const [status, setStatus] = useState('closed');
   const [error, setError] = useState('');
-  const [ws, setWs] = useState(null);
+  const [setWs] = useState(null);
   const [currentTicket, setCurrentTicket] = useState(null);
   const [isPris, setIsPris] = useState(false);
   const [absentTimer, setAbsentTimer] = useState(120);
@@ -55,7 +55,7 @@ const AppelTicket = () => {
     console.error('Erreur API:', err);
   };
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = useCallback(async () => {
     if (!refreshToken) {
       console.error('Aucun jeton de rafraîchissement disponible');
       toast.error('Session expirée. Veuillez vous reconnecter.');
@@ -74,7 +74,7 @@ const AppelTicket = () => {
       navigate('/login');
       return null;
     }
-  };
+  }, [navigate, refreshToken]);
 
   const handleLogout = () => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -94,7 +94,7 @@ const AppelTicket = () => {
     navigate('/');
   };
 
-  const fetchStats = async (period = 'journaliere') => {
+  const fetchStats = useCallback(async (period = 'journaliere') => {
     try {
       const today = new Date();
       let startDate, endDate;
@@ -116,17 +116,17 @@ const AppelTicket = () => {
         params: { period, start_date: startDate, end_date: endDate },
         headers: { Authorization: `Bearer ${token}` },
       });
-      const history = historyResponse.data;
+      const historyData = historyResponse.data;
 
-      if (!Array.isArray(history)) {
+      if (!Array.isArray(historyData)) {
         throw new Error('Réponse inattendue: les données historiques ne sont pas un tableau');
       }
 
-      const ticketsProcessed = history.filter((entry) => entry.action === 'traite').length;
-      const processedTickets = history.filter((entry) => entry.action === 'traite');
+      const ticketsProcessed = historyData.filter((entry) => entry.action === 'traite').length;
+      const processedTickets = historyData.filter((entry) => entry.action === 'traite');
       const waitTimes = [];
       for (const entry of processedTickets) {
-        const calledEntry = history.find((h) => h.ticket_numero === entry.ticket_numero && h.action === 'appelé' && new Date(h.created_at) < new Date(entry.created_at));
+        const calledEntry = historyData.find((h) => h.ticket_numero === entry.ticket_numero && h.action === 'appelé' && new Date(h.created_at) < new Date(entry.created_at));
         if (calledEntry) {
           const waitTime = (new Date(entry.created_at) - new Date(calledEntry.created_at)) / 1000 / 60;
           waitTimes.push(waitTime);
@@ -164,7 +164,7 @@ const AppelTicket = () => {
     } catch (err) {
       console.error('Erreur lors du calcul des statistiques:', err);
     }
-  };
+  }, [token]);
 
   const sendBroadcastNotification = async () => {
     if (!broadcastMessage) {
@@ -203,7 +203,7 @@ const AppelTicket = () => {
     }
   };
 
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     if (!guichet) return;
     try {
       const [ticketsResponse, historyResponse] = await Promise.all([
@@ -212,16 +212,16 @@ const AppelTicket = () => {
       ]);
 
       const waitingTickets = ticketsResponse.data.filter((t) => t.statut === 'attente');
-      const treatedTickets = ticketsResponse.data.filter((t) => t.statut === 'traite');
+      const treatedTicketsData = ticketsResponse.data.filter((t) => t.statut === 'traite');
       
       setTickets(waitingTickets.map((ticket) => ({ ...ticket, notified: false })).sort((a, b) => (a.position || 9999) - (b.position || 9999)));
-      setTreatedTickets(treatedTickets.map((ticket) => ({ ...ticket, notified: false })).sort((a, b) => (a.position || 9999) - (b.position || 9999)));
+      setTreatedTickets(treatedTicketsData.map((ticket) => ({ ...ticket, notified: false })).sort((a, b) => (a.position || 9999) - (b.position || 9999)));
       setHistory(historyResponse.data);
       await fetchStats(activeSousSection);
     } catch (err) {
       handleApiError(err, setError, 'Erreur lors de l’actualisation des données');
     }
-  };
+  }, [guichet, token, fetchStats, activeSousSection]);
 
   const deleteTicket = async (ticketId) => {
     const ticket = treatedTickets.find((t) => t.id === ticketId);
@@ -289,18 +289,18 @@ const AppelTicket = () => {
       }
       clearInterval(countdownTimerRef.current);
     };
-  }, [token, navigate]);
+  }, [token, navigate, refreshAccessToken]);
 
   useEffect(() => {
     if (!guichet) return;
     refreshData();
-  }, [guichet, token, ticketFilter]);
+  }, [guichet, token, ticketFilter, refreshData]);
 
   useEffect(() => {
     if (activeSection === 'statistiques') {
       fetchStats(activeSousSection);
     }
-  }, [activeSection, activeSousSection]);
+  }, [activeSection, activeSousSection, fetchStats]);
 
   useEffect(() => {
     if (!guichet || !token || !isMounted.current) return;
@@ -419,7 +419,7 @@ const AppelTicket = () => {
       setWs(null);
       wsRef.current = null;
     };
-  }, [guichet, token]);
+  }, [guichet, token, WS_BASE_URL, activeSousSection, currentTicket?.id, fetchStats, refreshAccessToken,setWs]);
 
   const toggleGuichet = async (newStatus) => {
     try {

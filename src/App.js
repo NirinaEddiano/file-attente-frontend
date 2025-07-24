@@ -15,7 +15,7 @@ import RendezVous from './pages/RendezVous';
 import DemoPage from './pages/Demopage';
 import AddGuichet from './pages/AddGuichet';
 import EditGuichet from './pages/EditGuichet';
-import Contact from './pages/Contact';
+import Contact from './pages/contact';
 import PourquoiQueueMaster from './pages/PourquoiQueueMaster';
 import NosPartenaires from './pages/NosPartenaires';
 import FAQ from './pages/FAQ';

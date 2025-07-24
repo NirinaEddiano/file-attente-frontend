@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import CountUp from 'react-countup';
 import axios from '../utils/axiosConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTicketAlt, faStar, faHandshake, faQuestionCircle, faArrowRight, faPlayCircle, faBars, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTicketAlt, faStar,  faQuestionCircle, faArrowRight,  faBars, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import queueBackgroundVideo1 from '../assets/video/queue-background-video1.mp4';
 import queueBackgroundVideo2 from '../assets/video/queue-background-video2.mp4';
 import queueBackgroundVideo3 from '../assets/video/queue-background-video3.mp4';
@@ -15,21 +14,23 @@ import reliabilityBg from '../assets/images/reliability-bg.jpg';
 import comfortBg from '../assets/images/comfort-bg.jpg';
 import mobilityBg from '../assets/images/mobility-bg.jpg';
 import heroCreatorImage from '../assets/images/hero-creator-image.jpg'; 
-import testimonialAuthor2 from '../assets/images/comfort-bg.jpg';
-import testimonialAuthor1 from '../assets/images/founder.jpg';
-import testimonialAuthor3 from '../assets/images/expert-tutors.jpg';
-import authorImage from '../assets/images/eddi.jpeg'; 
 import './Vitrines.css';
 
 const Vitrine = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [liveStats, setLiveStats] = useState({ tickets: 0, banks: 0 });
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [typedText, setTypedText] = useState('');
+  const [ setLiveStats] = useState({ tickets: 0, banks: 0 });
+  const [ setCurrentTestimonial] = useState(0);
+  const [ setTypedText] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState(0);
+  const [ setCurrentVideo] = useState(0);
   const videos = [queueBackgroundVideo1, queueBackgroundVideo2, queueBackgroundVideo3];
+
+  const testimonials = [
+    { text: '“QueueMaster a transformé mes visites en banque. Fini les longues attentes !”', author: 'Jean D.', title: 'Client fidèle'},
+    { text: '“Les alertes en temps réel sont un game-changer. Super pratique !”', author: 'Amina K.', title: 'Professionnelle'},
+    { text: '“Une interface simple et efficace. Je recommande !”', author: 'Marc L.', title: 'Nouvel utilisateur' }
+  ];
 
   useEffect(() => {
     let index = 0;
@@ -40,23 +41,19 @@ const Vitrine = () => {
       } else clearInterval(typingInterval);
     }, 50);
     return () => clearInterval(typingInterval);
-  }, []);
+  }, [setTypedText]);
 
   useEffect(() => {
     axios.get('/api/stats/').then((res) => setLiveStats(res.data)).catch(() => setLiveStats({ tickets: 1, banks: 5 }));
-  }, []);
+  }, [setLiveStats]);
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length), 5000);
     const videoInterval = setInterval(() => setCurrentVideo((prev) => (prev + 1) % videos.length), 10000);
     return () => { clearInterval(interval); clearInterval(videoInterval); };
-  }, []);
+  }, [setCurrentTestimonial,setCurrentVideo,videos.length,testimonials.length]);
 
-  const testimonials = [
-    { text: '“QueueMaster a transformé mes visites en banque. Fini les longues attentes !”', author: 'Jean D.', title: 'Client fidèle'},
-    { text: '“Les alertes en temps réel sont un game-changer. Super pratique !”', author: 'Amina K.', title: 'Professionnelle'},
-    { text: '“Une interface simple et efficace. Je recommande !”', author: 'Marc L.', title: 'Nouvel utilisateur' }
-  ];
+  
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const fullText = 'Gérez vos files d’attente facilement : prenez un ticket, suivez votre position en temps réel et recevez des alertes.';
 

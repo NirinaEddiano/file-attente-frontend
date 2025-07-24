@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faArrowRight, faTicketAlt, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faArrowRight, faTicketAlt, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import bankAlphaLogo from '../assets/images/bank-alpha-logo.jpg';
 import bankBetaLogo from '../assets/images/bank-beta-logo.jpg';
 import bankGammaLogo from '../assets/images/bank-gamma-logo.jpg';

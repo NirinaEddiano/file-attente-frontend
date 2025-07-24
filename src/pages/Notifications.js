@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../utils/axiosConfig';
-import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ClientNavbar from './ClientNavbar';
 import BordDroite from './BordDroite';
@@ -9,7 +8,6 @@ import './styles.css';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {

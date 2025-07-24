@@ -201,8 +201,11 @@ aside nav.flex-1 {
     border-radius: 12px;
     padding: 2px;
     background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
-    -webkit-mask: 
-      linear-gradient(#fff 0 0) content-box, 
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;

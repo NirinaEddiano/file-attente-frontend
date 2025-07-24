@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faPhone, faArrowLeft, faTicketAlt, faSignInAlt, faUserPlus, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faPhone,  faTicketAlt, faSignInAlt, faUserPlus, faBars } from '@fortawesome/free-solid-svg-icons';
 import './Contact.css';
 
 const Contact = () => {

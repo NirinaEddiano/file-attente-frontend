@@ -118,12 +118,15 @@
 .vitrine-hero-image-wrapper { flex: 1; position: relative; z-index: 1; }
 .vitrine-hero-image { width: 100%; max-width: 450px; height: auto; border-radius: 20px; z-index: 2; position: relative; }
 
+.vitrine-features-grid h4, .vitrine-partners-grid h4{
+  font-weight: bold;
+}
 
 /* Decorative Shapes */
 .shape { position: absolute; border-radius: 50%; z-index: 0; }
 .shape-1 { width: 120px; height: 120px; background-color: var(--accent-gold); top: 10%; right: 5%; }
-.shape-2 { width: 200px; height: 200px; background-color: rgba(5, 93, 217, 0.1); bottom: -50px; left: -50px; }
-.shape-3 { width: 60px; height: 60px; background-color: #749ed8; /* A soft pink accent like the model */ top: 50%; right: -30px; }
+.shape-2 { width: 200px; height: 200px; background-color: rgba(0, 47, 112, 0.1); bottom: -50px; left: -50px; }
+.shape-3 { width: 60px; height: 60px; background-color: #698fc3;  top: 50%; right: -30px; }
 
 /* Hero Testimonial */
 .vitrine-hero-testimonial { margin-top: 3rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 40px;}
