@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import instance from '../api/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -26,7 +26,7 @@ const Signup = () => {
       return;
     }
     try {
-      await axios.post('https://file-attente-back.onrender.com/api/users/register/', {
+       await instance.post('/api/users/register/', {
         username,
         password,
         role: 'client',
