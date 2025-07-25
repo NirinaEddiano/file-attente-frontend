@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useCallback } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
     if (!token) return;
   
     try {
-      const response = await axios.get('https://file-attente-back.onrender.com/api/guichets/', {
+      const response = await axios.get('/api/guichets/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAllGuichets(response.data);
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
     setError('');
   
     try {
-      const userResponse = await axios.get('https://file-attente-back.onrender.com/api/users/user/', {
+      const userResponse = await axios.get('/api/users/user/', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -167,11 +167,11 @@ const AdminDashboard = () => {
         guichetHistoryRes,
         guichetiersRes,
       ] = await Promise.all([
-        axios.get(`https://file-attente-back.onrender.com/api/tickets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`https://file-attente-back.onrender.com/api/guichets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`https://file-attente-back.onrender.com/api/users/?role=client`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`https://file-attente-back.onrender.com/api/guichet/history/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`https://file-attente-back.onrender.com/api/users/?role=guichetier`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`/api/tickets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`/api/guichets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`/api/users/?role=client`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`/api/guichet/history/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`/api/users/?role=guichetier`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
       ]);
   
       setTickets(ticketsRes.data);
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const response = await axios.get(`https://file-attente-back.onrender.com/api/stats/aggregate/?bank_id=${selectedBankId}&period=${period}`, {
+      const response = await axios.get(`/api/stats/aggregate/?bank_id=${selectedBankId}&period=${period}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
         navigate(`/admin/guichets/edit/${guichetId}`);
       } else if (action === 'delete') {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichet ?')) {
-          await axios.delete(`https://file-attente-back.onrender.com/api/guichets/${guichetId}/`, {
+          await axios.delete(`/api/guichets/${guichetId}/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setGuichets(guichets.filter((guichet) => guichet.id !== guichetId));
@@ -318,7 +318,7 @@ const AdminDashboard = () => {
         navigate(`/admin/guichetiers/edit/${guichetierId}`);
       } else if (action === 'delete') {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichetier ?')) {
-          await axios.delete(`https://file-attente-back.onrender.com/api/guichetier/${guichetierId}/delete/`, {
+          await axios.delete(`/api/guichetier/${guichetierId}/delete/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setGuichetiers(guichetiers.filter((guichetier) => guichetier.id !== guichetierId));
