@@ -1,6 +1,6 @@
 // src/components/AddGuichetier.js
 import React, { useState } from 'react';
-import axios from '../utils/axiosConfig';
+import instance from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -23,7 +23,7 @@ const AddGuichetier = () => {
     }
 
     try {
-      await axios.post(
+      await instance.post(
         '/guichetiers/',
         { username, email, password, role: 'guichetier' },
         { headers: { Authorization: `Bearer ${token}` } }
