@@ -26,7 +26,7 @@ const Signup = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:8000/api/users/register/', {
+      await axios.post('https://file-attente-back.onrender.com/api/users/register/', {
         username,
         password,
         role: 'client',
