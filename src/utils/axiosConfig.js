@@ -11,6 +11,8 @@ instance.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     if (token && !publicEndpoints.includes(config.url)) {
       config.headers.Authorization = `Bearer ${token}`;
+    }else {
+      delete config.headers.Authorization; 
     }
     return config;
   },
@@ -34,7 +36,7 @@ instance.interceptors.response.use(
           console.error('Jeton de rafraîchissement manquant');
           throw new Error('Jeton de rafraîchissement manquant');
         }
-        const response = await axios.post('https://file-attente-back.onrender.com/api/token/refresh/', {
+        const response = await axios.post('${process.env.REACT_APP_API_URL}/api/token/refresh/', {
           refresh: refreshToken,
         });
         const { access } = response.data;
