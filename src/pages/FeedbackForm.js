@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { toast } from 'react-toastify';
 import './styles.css';
 
@@ -19,7 +19,7 @@ const FeedbackForm = ({ sessionId }) => {
     try {
       const token = localStorage.getItem('token'); // Assuming JWT token is stored
       await axios.post(
-        'http://localhost:8000/api/feedback/',
+        '/api/feedback/',
         {
           session: sessionId,
           rating,
