@@ -22,7 +22,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const tokenResponse = await axios.post('https://file-attente-back.onrender.com/api/token/', {
+      const tokenResponse = await axios.post('/api/token/', {
         username,
         password,
       });
@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.setItem('access_token', tokenResponse.data.access);
       localStorage.setItem('refresh_token', tokenResponse.data.refresh);
 
-      const userResponse = await axios.get('https://file-attente-back.onrender.com/api/users/user/', {
+      const userResponse = await axios.get('/api/users/user/', {
         headers: {
           Authorization: `Bearer ${tokenResponse.data.access}`,
         },
