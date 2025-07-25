@@ -46,7 +46,7 @@ const AppelTicket = () => {
   const connectionLock = useRef(false);
   const countdownTimerRef = useRef(null);
 
-  const WS_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8000';
+  const WS_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://file-attente-back.onrender.com';
 
   const handleApiError = (err, setError, defaultMessage) => {
     const message = err.response?.data?.error || defaultMessage;
