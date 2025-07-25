@@ -19,6 +19,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("Base URL utilisée:", instance.defaults.baseURL);
     e.preventDefault();
     if (password.length < 6) {
       setError('Le mot de passe doit contenir au moins 6 caractères');
