@@ -29,7 +29,7 @@ const SuiviTicket = () => {
   const maxReconnectAttempts = 5;
   const isMounted = useRef(true);
 
-  const WS_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8000';
+  const WS_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://file-attente-back.onrender.com';
 
   const refreshAccessToken = useCallback(async () => {
     const refreshToken = localStorage.getItem('refresh_token');
