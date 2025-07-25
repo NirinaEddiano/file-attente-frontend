@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import Login from '../Login';
 
 jest.mock('axios');
@@ -33,7 +33,7 @@ describe('Login Component', () => {
     fireEvent.click(screen.getByText('Se connecter'));
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        'http://localhost:8000/api/token/',
+        'https://file-attente-back.onrender.com/api/token/',
         { username: 'testuser', password: 'testpass' }
       );
     });
