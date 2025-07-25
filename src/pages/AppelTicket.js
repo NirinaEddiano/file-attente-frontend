@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef,useCallback  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from '../utils/axiosConfig';
+import instance from '../utils/axiosConfig';
 import Chart from 'chart.js/auto';
 import 'ldrs/ring';
 import { Spiral } from 'ldrs/react';
@@ -65,7 +65,7 @@ const AppelTicket = () => {
       return null;
     }
     try {
-      const response = await axios.post('/api/token/refresh/', { refresh: refreshToken });
+      const response = await instance.post('/api/token/refresh/', { refresh: refreshToken });
       const newAccessToken = response.data.access;
       localStorage.setItem('access_token', newAccessToken);
       return newAccessToken;
@@ -112,7 +112,7 @@ const AppelTicket = () => {
         endDate = today.toISOString().split('T')[0];
       }
 
-      const historyResponse = await axios.get('/api/stats/', {
+      const historyResponse = await instance.get('/api/stats/', {
         params: { period, start_date: startDate, end_date: endDate },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -176,7 +176,7 @@ const AppelTicket = () => {
       return;
     }
     try {
-      await axios.post('/api/notifications/custom/', { message: broadcastMessage, bank_id: guichet.bank_id, service_id: guichet.service_id }, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post('/api/notifications/custom/', { message: broadcastMessage, bank_id: guichet.bank_id, service_id: guichet.service_id }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Notification diffusée à tous les clients en attente.');
       setBroadcastMessage('');
     } catch (err) {
@@ -194,7 +194,7 @@ const AppelTicket = () => {
       return;
     }
     try {
-      await axios.post('/api/notifications/custom/', { ticket_id: specificTicketId, message: customMessage, bank_id: guichet.bank_id, service_id: guichet.service_id }, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post('/api/notifications/custom/', { ticket_id: specificTicketId, message: customMessage, bank_id: guichet.bank_id, service_id: guichet.service_id }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success(`Notification envoyée au ticket ${specificTicketId}.`);
       setCustomMessage('');
       setSpecificTicketId('');
@@ -207,8 +207,8 @@ const AppelTicket = () => {
     if (!guichet) return;
     try {
       const [ticketsResponse, historyResponse] = await Promise.all([
-        axios.get('/api/tickets/list/', { params: { bank_id: guichet.bank_id, service_id: guichet.service_id }, headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('/api/guichet/history/', { headers: { Authorization: `Bearer ${token}` } }),
+        instance.get('/api/tickets/list/', { params: { bank_id: guichet.bank_id, service_id: guichet.service_id }, headers: { Authorization: `Bearer ${token}` } }),
+        instance.get('/api/guichet/history/', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const waitingTickets = ticketsResponse.data.filter((t) => t.statut === 'attente');
@@ -230,7 +230,7 @@ const AppelTicket = () => {
       return;
     }
     try {
-      await axios.post(`/api/tickets/${ticketId}/delete/`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post(`/api/tickets/${ticketId}/delete/`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setTreatedTickets((prev) => prev.filter((t) => t.id !== ticketId));
       setHistory((prev) => [{ id: Date.now(), ticket_id: ticketId, ticket_numero: ticket.numero, action: 'supprime', created_at: new Date() }, ...prev.slice(0, 50)]);
       toast.success(`Ticket ${ticket.numero} supprimé`);
@@ -253,7 +253,7 @@ const AppelTicket = () => {
     const fetchGuichetAndUser = async () => {
       setIsLoading(true);
       try {
-        const guichetResponse = await axios.get('/api/guichets/me/', { headers: { Authorization: `Bearer ${token}` } });
+        const guichetResponse = await instance.get('/api/guichets/me/', { headers: { Authorization: `Bearer ${token}` } });
         const guichetData = guichetResponse.data;
         if (!guichetData) {
           setError('Aucun guichet assigné. Contactez l’administrateur.');
@@ -267,7 +267,7 @@ const AppelTicket = () => {
         });
         setStatus(guichetData.status || 'closed');
         setAbsentTimer(guichetData.auto_absent_timer || 120);
-        const userResponse = await axios.get('/api/users/user/', { headers: { Authorization: `Bearer ${token}` } });
+        const userResponse = await instance.get('/api/users/user/', { headers: { Authorization: `Bearer ${token}` } });
         setUserName(userResponse.data.username || 'Utilisateur');
       } catch (err) {
         if (err.response?.status === 401) {
@@ -423,7 +423,7 @@ const AppelTicket = () => {
 
   const toggleGuichet = async (newStatus) => {
     try {
-      await axios.post(`/api/guichet/status/`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post(`/api/guichet/status/`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
       setStatus(newStatus);
       toast.success(`Guichet ${newStatus === 'open' ? 'ouvert' : newStatus === 'paused' ? 'en pause' : 'fermé'}`);
     } catch (err) {
@@ -445,7 +445,7 @@ const AppelTicket = () => {
       return;
     }
     try {
-      const response = await axios.post(`/api/tickets/${ticket.id}/call/`, { custom_message: customMessage }, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await instance.post(`/api/tickets/${ticket.id}/call/`, { custom_message: customMessage }, { headers: { Authorization: `Bearer ${token}` } });
       setCurrentTicket({ ...ticket, ...response.data });
       setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
       setCountdown(absentTimer);
@@ -471,7 +471,7 @@ const AppelTicket = () => {
   const markPris = async () => {
     if (!currentTicket) return;
     try {
-      await axios.post(`/api/tickets/${currentTicket.id}/taken/`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post(`/api/tickets/${currentTicket.id}/taken/`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setIsPris(true);
       setCountdown(null);
       clearInterval(countdownTimerRef.current);
@@ -488,7 +488,7 @@ const AppelTicket = () => {
 
   const markAbsent = async (ticketId) => {
     try {
-      await axios.post(`/api/tickets/${ticketId}/absent/`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await instance.post(`/api/tickets/${ticketId}/absent/`, {}, { headers: { Authorization: `Bearer ${token}` } });
       setHistory((prev) => [{ id: Date.now(), ticket_id: ticketId, ticket_numero: currentTicket?.numero || tickets.find((t) => t.id === ticketId)?.numero, action: 'absent', created_at: new Date() }, ...prev.slice(0, 50)]);
       if (currentTicket?.id === ticketId) {
         setCurrentTicket(null); setCountdown(null); setIsPris(false); clearInterval(countdownTimerRef.current);
