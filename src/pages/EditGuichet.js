@@ -33,13 +33,13 @@ const EditGuichet = () => {
     const fetchData = async () => {
       try {
         const [guichetRes, servicesRes, usersRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/admin/guichets/edit/${guichetId}/`, {
+          axios.get(`https://file-attente-back.onrender.com/api/admin/guichets/edit/${guichetId}/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:8000/api/services/?bank_id=1', {
+          axios.get('https://file-attente-back.onrender.com/api/services/?bank_id=1', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:8000/api/users/?role=guichetier', {
+          axios.get('https://file-attente-back.onrender.com/api/users/?role=guichetier', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -81,7 +81,7 @@ const EditGuichet = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/api/admin/guichets/edit/${guichetId}/`, formData, {
+      await axios.put(`https://file-attente-back.onrender.com/api/admin/guichets/edit/${guichetId}/`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/admin'); // Redirect back to dashboard
