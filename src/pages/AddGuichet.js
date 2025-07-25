@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
@@ -32,10 +32,10 @@ const AddGuichet = () => {
     const fetchData = async () => {
       try {
         const [servicesRes, usersRes] = await Promise.all([
-          axios.get('https://file-attente-back.onrender.com/api/services/?bank_id=1', {
+          axios.get('/api/services/?bank_id=1', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('https://file-attente-back.onrender.com/api/users/?role=guichetier', {
+          axios.get('/api/users/?role=guichetier', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -67,7 +67,7 @@ const AddGuichet = () => {
     }
 
     try {
-      await axios.post('https://file-attente-back.onrender.com/api/admin/guichets/add/', formData, {
+      await axios.post('/api/admin/guichets/add/', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/admin'); // Redirect back to dashboard
