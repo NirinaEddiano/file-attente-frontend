@@ -24,7 +24,7 @@ const BordDroite = () => {
               const imageUrl = userResponse.data.profile_image
                 ? userResponse.data.profile_image.startsWith('http')
                   ? userResponse.data.profile_image
-                  : `http://localhost:8000${userResponse.data.profile_image}`
+                  : `https://file-attente-back.onrender.com${userResponse.data.profile_image}`
                 : 'https://via.placeholder.com/80';
               setProfileImage(imageUrl);
             }
