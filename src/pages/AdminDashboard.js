@@ -86,7 +86,7 @@ const AdminDashboard = () => {
     if (!token) return;
   
     try {
-      const response = await axios.get('http://localhost:8000/api/guichets/', {
+      const response = await axios.get('https://file-attente-back.onrender.com/api/guichets/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAllGuichets(response.data);
@@ -103,7 +103,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      let url = `http://localhost:8000/api/guichet/history/filtered/?bank_id=${selectedBankId}`;
+      let url = `https://file-attente-back.onrender.com/api/guichet/history/filtered/?bank_id=${selectedBankId}`;
       if (guichetId) {
         url += `&guichet_id=${guichetId}`;
       }
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
     setError('');
   
     try {
-      const userResponse = await axios.get('http://localhost:8000/api/users/user/', {
+      const userResponse = await axios.get('https://file-attente-back.onrender.com/api/users/user/', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
         return;
       }
   
-      const banksResponse = await axios.get('http://localhost:8000/api/banks/', {
+      const banksResponse = await axios.get('https://file-attente-back.onrender.com/api/banks/', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -167,11 +167,11 @@ const AdminDashboard = () => {
         guichetHistoryRes,
         guichetiersRes,
       ] = await Promise.all([
-        axios.get(`http://localhost:8000/api/tickets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/users/?role=client`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/guichet/history/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
-        axios.get(`http://localhost:8000/api/users/?role=guichetier`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`https://file-attente-back.onrender.com/api/tickets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`https://file-attente-back.onrender.com/api/guichets/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`https://file-attente-back.onrender.com/api/users/?role=client`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`https://file-attente-back.onrender.com/api/guichet/history/?bank_id=${currentBankId}`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
+        axios.get(`https://file-attente-back.onrender.com/api/users/?role=guichetier`, { headers: { Authorization: `Bearer ${token}` } }).catch(err => ({ data: [] })),
       ]);
   
       setTickets(ticketsRes.data);
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/stats/aggregate/?bank_id=${selectedBankId}&period=${period}`, {
+      const response = await axios.get(`https://file-attente-back.onrender.com/api/stats/aggregate/?bank_id=${selectedBankId}&period=${period}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
         navigate(`/admin/guichets/edit/${guichetId}`);
       } else if (action === 'delete') {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichet ?')) {
-          await axios.delete(`http:///localhost:8000/api/guichets/${guichetId}/`, {
+          await axios.delete(`https://file-attente-back.onrender.com/api/guichets/${guichetId}/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setGuichets(guichets.filter((guichet) => guichet.id !== guichetId));
@@ -318,7 +318,7 @@ const AdminDashboard = () => {
         navigate(`/admin/guichetiers/edit/${guichetierId}`);
       } else if (action === 'delete') {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce guichetier ?')) {
-          await axios.delete(`http://localhost:8000/api/guichetier/${guichetierId}/delete/`, {
+          await axios.delete(`https://file-attente-back.onrender.com/api/guichetier/${guichetierId}/delete/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setGuichetiers(guichetiers.filter((guichetier) => guichetier.id !== guichetierId));
