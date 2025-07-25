@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import instance from '../api/axiosConfig';
+import instance from './utils/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
