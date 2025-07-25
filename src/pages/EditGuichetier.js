@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -29,7 +29,7 @@ const EditGuichetier = () => {
     }
 
     axios
-      .get(`https://file-attente-back.onrender.com/guichetier/${id}/`, {
+      .get(`/guichetier/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -59,7 +59,7 @@ const EditGuichetier = () => {
     try {
       const data = { username, email };
       if (password) data.password = password;
-      await axios.put(`https://file-attente-back.onrender.com/guichetier/${id}/`, data, {
+      await axios.put(`/guichetier/${id}/`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/admin');
