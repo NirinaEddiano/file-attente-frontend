@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://file-attente-back.onrender.com',
+  baseURL: process.env.REACT_APP_API_URL || 'https://file-attente-back.onrender.com',
 });
 
 const publicEndpoints = ['/api/stats/', '/api/token/', '/api/users/register/'];
