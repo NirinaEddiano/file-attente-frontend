@@ -50,7 +50,7 @@ const Profil = () => {
         const imageUrl = userResponse.data.profile_image
           ? userResponse.data.profile_image.startsWith('http')
             ? userResponse.data.profile_image
-            : `http://localhost:8000${userResponse.data.profile_image}`
+            : `https://file-attente-back.onrender.com${userResponse.data.profile_image}`
           : '';
         setImagePreview(imageUrl);
 
@@ -142,7 +142,7 @@ const Profil = () => {
       const imageUrl = response.data.profile_image
         ? response.data.profile_image.startsWith('http')
           ? response.data.profile_image
-          : `http://localhost:8000${response.data.profile_image}`
+          : `https://file-attente-back.onrender.com${response.data.profile_image}`
         : '';
       setImagePreview(imageUrl);
       setEditMode(false);
