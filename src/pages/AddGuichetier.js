@@ -1,6 +1,6 @@
 // src/components/AddGuichetier.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +24,7 @@ const AddGuichetier = () => {
 
     try {
       await axios.post(
-        'https://file-attente-back.onrender.com/guichetiers/',
+        '/guichetiers/',
         { username, email, password, role: 'guichetier' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
