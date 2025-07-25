@@ -29,7 +29,7 @@ const EditGuichetier = () => {
     }
 
     axios
-      .get(`http://localhost:8000/guichetier/${id}/`, {
+      .get(`https://file-attente-back.onrender.com/guichetier/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -59,7 +59,7 @@ const EditGuichetier = () => {
     try {
       const data = { username, email };
       if (password) data.password = password;
-      await axios.put(`http://localhost:8000/guichetier/${id}/`, data, {
+      await axios.put(`https://file-attente-back.onrender.com/guichetier/${id}/`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       navigate('/admin');
