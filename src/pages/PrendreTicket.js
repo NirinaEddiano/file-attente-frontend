@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
 const PrendreTicket = () => {
@@ -16,7 +16,7 @@ const PrendreTicket = () => {
             return;
         }
 
-        axios.get('https://file-attente-back.onrender.com/api/services/', {
+        axios.get('/api/services/', {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(response => {
@@ -30,7 +30,7 @@ const PrendreTicket = () => {
 
     const handleCreateTicket = () => {
         const token = localStorage.getItem('access_token');
-        axios.post('https://file-attente-back.onrender.com/api/tickets/', 
+        axios.post('/api/tickets/', 
             { service_id: selectedService },
             { headers: { Authorization: `Bearer ${token}` } }
         )
