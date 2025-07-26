@@ -236,7 +236,7 @@
   }
   .panel-form { padding-top: 2rem; }
   .panel-illustration { 
-    padding: 1.5rem; 
+    padding: 3rem; 
     clip-path: ellipse(150% 80% at 50% 0%); 
     min-height: auto;
   }
@@ -268,7 +268,7 @@
   .login-page-container { padding: 1rem; }
   .login-card { border-radius: 0.75rem; }
   .panel-form { padding: 1rem 0.75rem; }
-  .panel-illustration { padding: 1rem; clip-path: ellipse(150% 80% at 50% 0%); }
+  .panel-illustration { padding: 3rem; clip-path: ellipse(150% 80% at 50% 0%); }
   .panel-illustration h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
   .panel-illustration p { font-size: 0.75rem; margin-bottom: 0.75rem; }
   .btn-outline { 
