@@ -2995,7 +2995,6 @@ input[type="password"] {
   h2 {
     font-size: 1.5rem; /* Taille de police pour tablette */
     font-weight: 600;
-    color: var(--primary-blue);
     margin-bottom: 16px;
     line-height: 1.3;
     text-align: center;
