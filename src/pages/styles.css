@@ -2856,102 +2856,7 @@ input[type="password"] {
   appearance: none;
 }
 
-@media (max-width: 768px) {
-  h1, .text-4xl {
-    font-size: 1.8rem;
-    padding-left: 0;
-    text-align: center;
-  }
 
-  h2, .text-2xl {
-    font-size: 1.5rem;
-    padding-left: 0;
-    padding-right: 0;
-    text-align: center;
-  }
-
-  main {
-    padding: 1rem;
-  }
-
-  .card {
-    padding: 1rem;
-    margin: 0.5rem;
-  }
-
-  .flex.space-x-4 {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .flex.space-x-4 .cta-button,
-  .flex.space-x-4 .secondary-button {
-    width: 100%;
-    font-size: 0.9rem;
-    padding: 0.5rem;
-  }
-
-  .titre {
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .titre .flex.space-x-4 {
-    justify-content: center;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .grid.md\:grid-cols-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .card h3 {
-    font-size: 1rem;
-  }
-
-  .card p {
-    font-size: 0.85rem;
-  }
-
-  select,
-  input[type="text"] {
-    font-size: 0.9rem;
-    padding: 0.5rem;
-  }
-
-  .bg-bg-light {
-    padding-bottom: 4rem;
-  }
-}
-
-@media (max-width: 480px) {
-  h1, .text-4xl {
-    font-size: 1.5rem;
-  }
-
-  h2, .text-2xl {
-    font-size: 1.25rem;
-  }
-
-  .card {
-    padding: 0.75rem;
-  }
-
-  .cta-button,
-  .secondary-button {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .titre {
-    padding: 0.75rem;
-  }
-
-  .titre p {
-    font-size: 0.9rem;
-  }
-}
 
 /* Variables de couleur pour cohérence */
 :root {
@@ -3097,6 +3002,7 @@ input[type="password"] {
 
   h2 {
     font-size: 1.75rem;
+      place-items:center;
   }
 
   p {
