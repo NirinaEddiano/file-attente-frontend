@@ -2942,8 +2942,7 @@ input[type="password"] {
   }
 
   p {
-    font-size: 0.875rem; /* Texte lisible sur mobile */
-    color: var(--text-gray);
+    font-size: 0.875rem; 
     margin-bottom: 20px;
     line-height: 1.5;
     text-align: center;
@@ -3004,7 +3003,6 @@ input[type="password"] {
 
   p {
     font-size: 1rem;
-    color: var(--text-gray);
     margin-bottom: 24px;
     line-height: 1.5;
     text-align: center;
