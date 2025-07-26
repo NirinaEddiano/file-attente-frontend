@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. Configuration Globale et Variables
+   ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
 :root {
@@ -9,36 +12,38 @@
   --white: #FFFFFF;
 }
 
-/* Base styles (Mobile-first) */
-.vitrine-wrapper {
+/* Réinitialisation de base et police par défaut */
+.vitrine-wrapper, .vitrine-wrapper * {
+  all: unset;
+  display: block;
   font-family: 'Poppins', sans-serif;
-  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
   background-color: var(--white);
   color: var(--text-dark);
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ==========================================================================
+   2. Styles de Base (Mobile First)
+   ========================================================================== */
 
-/* Container */
+/* --- Conteneur principal --- */
 .vitrine-container {
-  max-width: 100%;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
-  position: relative;
+  padding: 0 1rem; /* Moins de padding sur mobile */
 }
 
-/* Header */
+/* --- Header --- */
 .vitrine-header {
   background-color: var(--white);
-  color: var(--primary-blue);
   padding: 1rem 0;
   position: sticky;
   top: 0;
@@ -50,86 +55,85 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  padding: 0 1rem;
 }
 
 .vitrine-header h1 {
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Taille ajustée pour mobile */
   font-weight: 700;
+  color: var(--primary-blue);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.vitrine-nav {
-  display: none;
+/* --- Menu Burger --- */
+.vitrine-menu-toggle {
+  display: block; /* Visible par défaut sur mobile */
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+  cursor: pointer;
+  background: none;
+  border: none;
 }
 
-.vitrine-nav-active {
-  display: flex;
+/* --- Navigation --- */
+.vitrine-nav {
+  display: none; /* Cachée par défaut sur mobile */
   flex-direction: column;
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
   background: var(--white);
-  padding: 1rem;
+  padding: 1.5rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  gap: 0.75rem;
-  z-index: 1000;
+  gap: 1rem;
+  align-items: stretch;
+  text-align: center;
 }
 
-.vitrine-nav a, .vitrine-nav-active a {
+.vitrine-nav.vitrine-nav-active {
+  display: flex; /* Affichée quand le menu est ouvert */
+}
+
+.vitrine-nav a {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-light);
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
-  text-decoration: none;
   transition: all 0.3s ease;
+  text-decoration: none;
 }
 
-.vitrine-nav a:hover, .vitrine-nav-active a:hover {
+.vitrine-nav a:hover {
   color: var(--primary-blue);
   background-color: rgba(255, 215, 0, 0.15);
 }
 
-.vitrine-nav a.vitrine-nav-active-link, .vitrine-nav-active a.vitrine-nav-active-link {
+.vitrine-nav a.vitrine-nav-active-link {
   color: var(--primary-blue);
   font-weight: 700;
 }
 
-.vitrine-nav a.vitrine-nav-active-link::after, .vitrine-nav-active a.vitrine-nav-active-link::after {
-  content: '';
-  display: block;
-  height: 3px;
-  background-color: var(--accent-gold);
-  border-radius: 2px;
-  margin-top: 0.25rem;
-}
-
-.vitrine-menu-toggle {
-  display: block;
-  font-size: 1.5rem;
-  color: var(--primary-blue);
-  cursor: pointer;
-}
-
-/* Buttons */
-.vitrine-cta-button, .vitrine-secondary-button, .vitrine-cta-buttons {
-  display: flex;
+/* --- Boutons --- */
+.vitrine-cta-button,
+.vitrine-secondary-button,
+.vitrine-cta-buttons,
+.vitrine-secondary-buttons {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.3s ease;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.875rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  width: 100%;
-  max-width: 200px;
+  width: 100%; /* Pleine largeur sur mobile */
   text-align: center;
 }
 
@@ -137,7 +141,6 @@
   background-color: var(--primary-blue);
   color: var(--white);
 }
-
 .vitrine-cta-button:hover, .vitrine-cta-buttons:hover {
   background-color: #2c5aa5;
   transform: translateY(-2px);
@@ -145,267 +148,330 @@
 }
 
 .vitrine-secondary-button {
-  background-color: transparent;
-  color: var(--primary-blue);
-  border: 2px solid var(--primary-blue);
+  background-color: #3c6092;
+  color: white;
 }
-
 .vitrine-secondary-button:hover {
-  background-color: rgba(26, 60, 109, 0.1);
-  transform: translateY(-2px);
+  background-color: #1A3C6D;
 }
+.vitrine-secondary-buttons {
+  background-color: #1A3C6D; color: white; border: 2px solid #e2e8f0;
+}
+.vitrine-secondary-buttons:hover { background-color: #e2e8f0; transform: translateY(-2px);color: #1A3C6D; }
 
-.vitrine-nav .vitrine-cta-button, .vitrine-nav-active .vitrine-cta-button {
+
+/* Styles spécifiques pour les boutons dans la nav mobile */
+.vitrine-nav .vitrine-cta-button {
   background-color: var(--accent-gold);
   color: var(--primary-blue);
 }
 
-.vitrine-nav .vitrine-cta-button:hover, .vitrine-nav-active .vitrine-cta-button:hover {
-  background-color: #e6c200;
-}
-
-.vitrine-nav .vitrine-secondary-button, .vitrine-nav-active .vitrine-secondary-button {
-  background-color: transparent;
-  color: var(--primary-blue);
-  border: 2px solid var(--primary-blue);
-}
-
-/* Hero Section */
-.vitrine-hero {
-  background-color: var(--bg-light);
-  padding: 3rem 1rem;
+/* --- Sections Générales --- */
+main section {
+  padding: 4rem 1.5rem; /* Moins de padding sur mobile */
   text-align: center;
+}
+
+main section:nth-child(even) {
+  background-color: var(--bg-light);
+}
+
+section h3 {
+  font-size: 2rem; /* Taille de titre ajustée */
+  font-weight: 800;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
+}
+
+section .section-subtitle {
+  font-size: 1rem;
+  color: var(--text-light);
+  max-width: 90%;
+  margin: 0 auto 2rem auto;
+}
+
+/* --- Section Héros --- */
+.vitrine-hero {
+  padding: 4rem 0;
+  background-color: var(--bg-light);
+  overflow: hidden;
 }
 
 .vitrine-hero-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Passage en colonne sur mobile */
+  align-items: center;
   gap: 2rem;
 }
 
+.vitrine-hero-text {
+  text-align: center;
+  order: 2; /* Texte après l'image sur mobile */
+}
+
 .vitrine-hero-text h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: var(--text-dark);
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
 .vitrine-hero-text p {
-  font-size: 1rem;
-  color: var(--text-light);
-  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.vitrine-hero-image-wrapper {
+  order: 1; /* Image avant le texte sur mobile */
+  width: 90%;
+  max-width: 350px;
+}
+.vitrine-hero-image {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
 }
 
 .vitrine-hero-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  flex-direction: column; /* Boutons en colonne */
+  gap: 1rem;
   align-items: center;
 }
 
-.vitrine-hero-image-wrapper {
-  position: relative;
+.boutons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.vitrine-hero-image {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  border-radius: 12px;
-}
-
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  z-index: 0;
-}
-
-.shape-1 {
-  width: 80px;
-  height: 80px;
-  background-color: var(--accent-gold);
-  top: 10%;
-  right: 5%;
-}
-
-.shape-2 {
-  width: 120px;
-  height: 120px;
-  background-color: rgba(0, 47, 112, 0.1);
-  bottom: -30px;
-  left: -30px;
-}
-
-.shape-3 {
-  width: 40px;
-  height: 40px;
-  background-color: #698fc3;
-  top: 50%;
-  right: -20px;
-}
-
-/* Features, Partners, FAQ Sections */
-.vitrine-features, .vitrine-partners, .vitrine-faq {
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.vitrine-features-grid, .vitrine-partners-grid, .vitrine-faq-grid {
+/* --- Grilles (Fonctionnalités, Partenaires, FAQ) --- */
+.vitrine-features-grid,
+.vitrine-partners-grid,
+.vitrine-faq-grid,
+.vitrine-testimonials-carousel {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* Une seule colonne par défaut */
   gap: 1.5rem;
 }
 
-.vitrine-feature-card, .vitrine-partner-card, .vitrine-faq-card {
-  background: var(--white);
-  padding: 1.5rem;
+/* --- Cartes --- */
+.vitrine-feature-card,
+.vitrine-partner-card,
+.vitrine-testimonial-card,
+.vitrine-faq-card {
+  background: var(--bg-light);
+  padding: 2rem 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.vitrine-feature-card:hover, .vitrine-partner-card:hover, .vitrine-faq-card:hover {
+.vitrine-feature-card:hover,
+.vitrine-partner-card:hover,
+.vitrine-faq-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-.vitrine-feature-card img, .vitrine-partner-card img {
+.vitrine-feature-card img,
+.vitrine-partner-card img {
   width: 100%;
-  height: 120px;
+  height: 180px;
   object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.vitrine-partner-card img {
-  height: 80px;
-  object-fit: contain;
-}
-
-.vitrine-feature-card h4, .vitrine-partner-card h4, .vitrine-faq-card h4 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-}
-
-.vitrine-feature-card p, .vitrine-partner-card p, .vitrine-faq-card p {
-  font-size: 0.875rem;
-  color: var(--text-light);
-}
-
-.vitrine-faq-card .vitrine-fa-icon {
-  font-size: 1.5rem;
-  color: var(--primary-blue);
-  margin-bottom: 0.75rem;
-}
-
-.vitrine-features h3, .vitrine-partners h3, .vitrine-faq h3 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--primary-blue);
-  margin-bottom: 2rem;
-}
-
-/* Testimonials Section */
-.vitrine-testimonials {
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.vitrine-testimonials-carousel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.vitrine-testimonial-card {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.vitrine-testimonial-card p {
-  font-size: 0.875rem;
-  font-style: italic;
-  color: var(--text-light);
-}
-
-.vitrine-testimonial-author {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.vitrine-testimonial-author .author-name {
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.vitrine-testimonial-author .author-title {
-  font-size: 0.75rem;
-  color: var(--text-light);
-}
-
-.vitrine-card-icon {
-  font-size: 1.25rem;
-  color: var(--primary-blue);
-  background-color: rgba(255, 215, 0, 0.2);
-  padding: 0.5rem;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-}
-
-/* CTA Section */
-.vitrine-cta {
-  background: linear-gradient(120deg, var(--primary-blue), var(--accent-gold));
-  color: var(--white);
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.vitrine-cta h3 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-}
-
-.vitrine-cta p {
-  font-size: 1rem;
-  color: #E0E0E0;
   margin-bottom: 1.5rem;
 }
 
-.vitrine-cta-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: center;
+.vitrine-partner-card img {
+  height: 120px;
+  width: 120px;
+  object-fit: contain;
+  margin: 0 auto 1.5rem;
 }
 
-/* Footer */
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* --- FAQ --- */
+.vitrine-faq {
+  position: relative;
+  overflow: hidden;
+}
+.vitrine-faq-card { cursor: pointer; }
+.vitrine-faq p {
+  color: #000;
+}
+
+/* --- CTA Section --- */
+.vitrine-cta {
+    background: linear-gradient(120deg, var(--primary-blue), var(--accent-gold));
+    color: white;
+}
+.vitrine-cta h3 {
+  color: var(--white);
+}
+
+/* --- Footer --- */
 .vitrine-footer {
-  background: #1A1A1A;
-  color: #E0E0E0;
-  padding: 2rem 1rem;
+  background: var(--text-dark);
+  color: #CCC;
+  padding: 3rem 1.5rem;
   text-align: center;
 }
-
-.vitrine-footer-links a {
-  color: #CCC;
-  text-decoration: none;
-  margin: 0 0.5rem;
+.vitrine-footer p {
+  margin-bottom: 1rem;
 }
-
+.vitrine-footer-links a {
+  margin: 0 0.5rem;
+  text-decoration: underline;
+  color: #CCC;
+}
 .vitrine-footer-links a:hover {
   color: var(--accent-gold);
 }
 
-/* Scroll Animations */
+
+/* ==========================================================================
+   3. Tablet Styles (min-width: 768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .vitrine-container {
+    padding: 0 2rem; /* Plus de padding */
+  }
+
+  .vitrine-menu-toggle {
+    display: none; /* Cacher le menu burger */
+  }
+
+  .vitrine-nav {
+    display: flex; /* Afficher la nav horizontalement */
+    flex-direction: row;
+    position: static;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    gap: 0.5rem; /* Espacement réduit entre les liens */
+  }
+
+  .vitrine-nav-active-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 1rem;
+    right: 1rem;
+    height: 3px;
+    background-color: var(--accent-gold);
+    border-radius: 2px;
+  }
+  
+  .vitrine-cta-button,
+  .vitrine-secondary-button,
+  .vitrine-cta-buttons,
+  .vitrine-secondary-buttons {
+    width: auto; /* Largeur auto pour les boutons */
+  }
+  
+  .vitrine-nav .vitrine-secondary-button,
+  .vitrine-nav .vitrine-cta-button {
+    margin-left: 0.5rem;
+  }
+  
+  .vitrine-hero-content {
+    flex-direction: row; /* Retour à une disposition en ligne */
+    text-align: left;
+    gap: 3rem;
+  }
+
+  .vitrine-hero-text {
+    text-align: left;
+    order: 1; /* Le texte revient en premier */
+  }
+
+  .vitrine-hero-image-wrapper {
+    order: 2;
+    max-width: 400px;
+  }
+
+  .vitrine-hero-text h2 {
+    font-size: 3rem;
+  }
+
+  .vitrine-hero-buttons {
+    flex-direction: row; /* Boutons en ligne */
+    justify-content: flex-start;
+  }
+
+  .boutons {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+  .vitrine-secondary-buttons {
+    margin-left: 0;
+  }
+
+  .vitrine-features-grid, .vitrine-faq-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+  }
+
+  .vitrine-partners-grid, .vitrine-testimonials-carousel {
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+
+/* ==========================================================================
+   4. Desktop Styles (min-width: 1024px)
+   ========================================================================== */
+@media (min-width: 1024px) {
+  section h3 {
+    font-size: 2.5rem;
+  }
+
+  section .section-subtitle {
+    font-size: 1.125rem;
+  }
+  
+  .vitrine-nav {
+    gap: 1rem; /* Plus d'espace pour la nav desktop */
+  }
+
+  .vitrine-hero {
+    padding: 6rem 0;
+  }
+  
+  .vitrine-hero-text h2 {
+    font-size: 3.5rem;
+  }
+
+  .vitrine-features-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+  }
+  
+  .vitrine-partners-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+  }
+  
+  .vitrine-faq-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+  }
+  .button {
+    display: flex;
+    justify-content: center;
+    padding-left: 0; /* Centrer le bouton sur desktop */
+    margin-top: 3rem;
+  }
+}
+
+
+/* ==========================================================================
+   5. Animations de défilement
+   ========================================================================== */
 [data-scroll] {
   opacity: 0;
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -415,129 +481,30 @@
   opacity: 1;
 }
 
-[data-scroll="fade"] { transform: translateY(20px); }
-[data-scroll="fade"].visible { transform: translateY(0); }
-[data-scroll="slide-up"] { transform: translateY(50px); }
-[data-scroll="slide-up"].visible { transform: translateY(0); }
-[data-scroll="zoom"] { transform: scale(0.9); }
-[data-scroll="zoom"].visible { transform: scale(1); }
-[data-scroll="slide-left"] { transform: translateX(-30px); }
-[data-scroll="slide-left"].visible { transform: translateX(0); }
-
-/* Tablet (min-width: 768px) */
-@media (min-width: 768px) {
-  .vitrine-container {
-    max-width: 720px;
-    padding: 0 1.5rem;
-  }
-
-  .vitrine-header h1 {
-    font-size: 1.75rem;
-  }
-
-  .vitrine-nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .vitrine-nav-active {
-    position: static;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  .vitrine-menu-toggle {
-    display: none;
-  }
-
-  .vitrine-cta-button, .vitrine-secondary-button, .vitrine-cta-buttons {
-    width: auto;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .vitrine-hero {
-    padding: 4rem 1.5rem;
-  }
-
-  .vitrine-hero-content {
-    flex-direction: row;
-    align-items: center;
-    gap: 3rem;
-  }
-
-  .vitrine-hero-text h2 {
-    font-size: 2.5rem;
-  }
-
-  .vitrine-hero-text p {
-    font-size: 1.125rem;
-  }
-
-  .vitrine-hero-buttons {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .vitrine-hero-image {
-    max-width: 400px;
-  }
-
-  .vitrine-features-grid, .vitrine-partners-grid, .vitrine-faq-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-
-  .vitrine-testimonials-carousel {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-
-  .vitrine-cta-buttons {
-    flex-direction: row;
-  }
+[data-scroll="fade"] {
+  transform: translateY(20px);
+}
+[data-scroll="fade"].visible {
+  transform: translateY(0);
 }
 
-/* Desktop (min-width: 1024px) */
-@media (min-width: 1024px) {
-  .vitrine-container {
-    max-width: 1200px;
-  }
+[data-scroll="slide-up"] {
+  transform: translateY(50px);
+}
+[data-scroll="slide-up"].visible {
+  transform: translateY(0);
+}
 
-  .vitrine-header h1 {
-    font-size: 2rem;
-  }
+[data-scroll="zoom"] {
+  transform: scale(0.9);
+}
+[data-scroll="zoom"].visible {
+  transform: scale(1);
+}
 
-  .vitrine-hero {
-    padding: 6rem 1.5rem;
-  }
-
-  .vitrine-hero-text h2 {
-    font-size: 3.5rem;
-  }
-
-  .vitrine-hero-text p {
-    font-size: 1.25rem;
-    max-width: 500px;
-  }
-
-  .vitrine-hero-image {
-    max-width: 450px;
-  }
-
-  .vitrine-features h3, .vitrine-partners h3, .vitrine-faq h3, .vitrine-cta h3 {
-    font-size: 2.5rem;
-  }
-
-  .vitrine-feature-card img, .vitrine-partner-card img {
-    height: 180px;
-  }
-
-  .vitrine-partner-card img {
-    height: 120px;
-  }
-
-  .vitrine-feature-card p, .vitrine-partner-card p, .vitrine-faq-card p {
-    font-size: 1rem;
-  }
+[data-scroll="slide-left"] {
+  transform: translateX(-30px);
+}
+[data-scroll="slide-left"].visible {
+  transform: translateX(0);
 }
