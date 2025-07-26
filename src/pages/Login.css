@@ -1,6 +1,4 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
 
 :root {
   --blue-primary: #1A3C6D; 
@@ -11,7 +9,6 @@
   --gray-medium: #9CA3AF;
   --text-dark: #1F2937;
 }
-
 
 .login-page-container {
   display: flex;
@@ -125,18 +122,18 @@
 }
 
 .password-toggle-icon {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    color: var(--gray-medium);
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-  
-  .password-toggle-icon:hover {
-    color: var(--blue-primary);
-  }
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  color: var(--gray-medium);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.password-toggle-icon:hover {
+  color: var(--blue-primary);
+}
 
 .input-wrapper input {
   width: 100%;
@@ -159,7 +156,6 @@
 .input-wrapper input:focus {
   border-color: var(--blue-primary);
 }
-
 
 .btn {
   height: 50px;
@@ -184,8 +180,8 @@
 }
 
 .btn-solid:hover {
-  background-color: #1A3C6D; 
-  color: yellow;
+  background-color: var(--blue-dark); 
+  color: var(--white-primary);
   transform: translateY(-3px);
   box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.2);
 }
@@ -194,13 +190,13 @@
   background-color: transparent;
   border: 2px solid var(--white-primary);
   color: var(--white-primary);
+  z-index: 1;
 }
 
 .btn-outline:hover {
   background-color: var(--white-primary);
   color: var(--blue-primary);
 }
-
 
 .error-message {
   color: #c0392b;
@@ -214,25 +210,79 @@
   width: 100%;
 }
 
-@media (max-width: 900px) {
-  .login-card {
-    flex-direction: column-reverse; 
-    min-height: auto;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .login-page-container { padding: 1.5rem; }
+  .login-card { max-width: 800px; min-height: auto; }
+  .panel-form { padding: 2rem; }
+  .panel-illustration { padding: 2rem; clip-path: ellipse(120% 80% at 70% 50%); }
+  .panel-illustration h2 { font-size: 1.75rem; }
+  .panel-illustration p { font-size: 0.85rem; max-width: 250px; }
+  .illustration { max-width: 220px; }
+  .form-container { max-width: 300px; }
+  .form-title { font-size: 2rem; margin-bottom: 2rem; }
+  .input-wrapper input { height: 50px; font-size: 0.95rem; padding: 0 18px 0 45px; }
+  .btn { height: 45px; width: 160px; font-size: 0.95rem; }
+  .back-button1 { top: 1.5rem; left: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+  .login-card { flex-direction: column-reverse; max-width: 100%; border-radius: 1rem; }
+  .panel-form, .panel-illustration { 
+    flex-basis: auto; 
+    width: 100%; 
+    padding: 2rem; 
+    clip-path: none; 
   }
-  .panel-form, .panel-illustration {
-    flex-basis: auto;
+  .panel-form { padding-top: 3rem; }
+  .panel-illustration { 
+    padding-bottom: 2rem; 
+    clip-path: ellipse(150% 80% at 50% 130%); 
+  }
+  .panel-illustration h2 { font-size: 1.5rem; }
+  .panel-illustration p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1.5rem; }
+  .btn-outline { 
+    width: 100%; 
+    max-width: 280px; 
+    height: 42px; 
+    font-size: 0.9rem; 
+    background-color: transparent;
+    border: 2px solid var(--white-primary);
+    color: var(--white-primary);
+  }
+  .illustration { display: none; }
+  .form-container { max-width: 100%; }
+  .form-title { font-size: 1.75rem; margin-bottom: 1.5rem; }
+  .input-wrapper { margin-bottom: 1.2rem; }
+  .input-wrapper input { height: 48px; font-size: 0.9rem; padding: 0 16px 0 40px; }
+  .input-wrapper .input-icon { left: 15px; font-size: 0.9rem; }
+  .password-toggle-icon { right: 15px; font-size: 0.9rem; }
+  .btn-solid { height: 42px; width: 100%; max-width: 280px; font-size: 0.9rem; }
+  .error-message { font-size: 0.85rem; padding: 0.8rem; }
+  .back-button1 { font-size: 0.9rem; padding: 0.4rem 0.8rem; top: 1rem; left: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .login-page-container { padding: 1rem; }
+  .login-card { border-radius: 0.75rem; }
+  .panel-form { padding: 1.5rem 0.75rem; }
+  .panel-illustration { padding: 1.5rem; clip-path: ellipse(150% 80% at 50% 120%); }
+  .panel-illustration h2 { font-size: 1.25rem; }
+  .panel-illustration p { font-size: 0.75rem; margin-bottom: 1rem; }
+  .btn-outline { 
+    height: 40px; 
+    font-size: 0.85rem; 
+    background-color: transparent;
+    border: 2px solid var(--white-primary);
+    color: var(--white-primary);
     width: 100%;
-    padding: 2rem;
-    clip-path: none;
+    max-width: 240px;
   }
-  .panel-form {
-    padding-top: 3rem;
-  }
-  .panel-illustration {
-    padding-bottom: 6rem; 
-    clip-path: ellipse(150% 80% at 50% 130%);
-  }
-  .illustration {
-    display: none; 
-  }
+  .form-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .input-wrapper input { height: 45px; font-size: 0.85rem; padding: 0 14px 0 38px; border-radius: 45px; }
+  .input-wrapper .input-icon { left: 12px; font-size: 0.85rem; }
+  .password-toggle-icon { right: 12px; font-size: 0.85rem; }
+  .btn-solid { height: 40px; font-size: 0.85rem; max-width: 240px; }
+  .error-message { font-size: 0.8rem; padding: 0.6rem; }
+  .back-button1 { top: 0.75rem; left: 0.75rem; font-size: 0.85rem; padding: 0.3rem 0.6rem; }
 }
