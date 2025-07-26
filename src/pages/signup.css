@@ -226,7 +226,7 @@
   .panel-left { 
     flex-basis: auto; 
     width: 100%; 
-    padding: 2rem; 
+    padding: 3rem; 
     clip-path: ellipse(150% 80% at 50% 0%); 
     min-height: auto;
   }
@@ -259,7 +259,7 @@
 @media (max-width: 480px) {
   .signup-page-container { padding: 1rem; }
   .signup-card { border-radius: 0.75rem; }
-  .panel-left { padding: 2rem; clip-path: ellipse(150% 80% at 50% 0%); }
+  .panel-left { padding: 3rem; clip-path: ellipse(150% 80% at 50% 0%); }
   .panel-left h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
   .panel-left p { font-size: 0.75rem; margin-bottom: 1rem; }
   .btn-outline { 
