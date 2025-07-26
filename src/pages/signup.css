@@ -226,7 +226,7 @@
     clip-path: ellipse(150% 80% at 50% -30%); 
   }
   .panel-left h2 { font-size: 1.5rem; }
-  .panel-left p { font-size: 0.8rem; max-width: 100%; }
+  .panel-left p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1.5rem; }
   .illustration { display: none; }
   .panel-right { padding: 2rem 1rem; }
   .form-container { max-width: 100%; }
@@ -236,6 +236,13 @@
   .input-wrapper .input-icon { left: 15px; font-size: 0.9rem; }
   .password-toggle-icon { right: 15px; font-size: 0.9rem; }
   .btn { height: 42px; width: 100%; max-width: 280px; font-size: 0.9rem; }
+  .btn-outline { 
+    background-color: transparent; 
+    border: 2px solid var(--white-primary); 
+    color: var(--white-primary); 
+    margin-top: 1rem; 
+    visibility: visible; 
+  }
   .error-message { font-size: 0.85rem; padding: 0.8rem; }
   .back-button1 { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
 }
@@ -243,15 +250,44 @@
 @media (max-width: 480px) {
   .signup-page-container { padding: 1rem; }
   .signup-card { border-radius: 0.75rem; }
-  .panel-left { padding: 1.5rem; clip-path: ellipse(150% 80% at 50% -20%); }
+  .panel-left { 
+    padding: 1.5rem; 
+    clip-path: ellipse(150% 80% at 50% -20%); 
+  }
   .panel-left h2 { font-size: 1.25rem; }
-  .panel-left p { font-size: 0.75rem; }
+  .panel-left p { font-size: 0.75rem; margin-bottom: 1rem; }
   .panel-right { padding: 1.5rem 0.75rem; }
   .form-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
-  .input-wrapper input { height: 45px; font-size: 0.85rem; padding: 0 14px 0 38px; border-radius: 45px; }
+  .input-wrapper input { 
+    height: 45px; 
+    font-size: 0.85rem; 
+    padding: 0 14px 0 38px; 
+    border-radius: 45px; 
+  }
   .input-wrapper .input-icon { left: 12px; font-size: 0.85rem; }
   .password-toggle-icon { right: 12px; font-size: 0.85rem; }
-  .btn { height: 40px; font-size: 0.85rem; }
+  .btn { 
+    height: 40px; 
+    font-size: 0.85rem; 
+    width: 100%; 
+    max-width: 100%; 
+  }
+  .btn-outline { 
+    background-color: transparent; 
+    border: 2px solid var(--white-primary); 
+    color: var(--white-primary); 
+    margin-top: 0.75rem; 
+    padding: 0.5rem; 
+    visibility: visible; 
+  }
+  .btn-outline:hover { 
+    background-color: var(--white-primary); 
+    color: var(--blue-primary); 
   .error-message { font-size: 0.8rem; padding: 0.6rem; }
-  .back-button1 { top: 0.75rem; left: 0.75rem; font-size: 0.85rem; padding: 0.3rem 0.6rem; }
+  .back-button1 { 
+    top: 0.5rem; 
+    left: 0.5rem; 
+    font-size: 0.85rem; 
+    padding: 0.3rem 0.6rem; 
+  }
 }
