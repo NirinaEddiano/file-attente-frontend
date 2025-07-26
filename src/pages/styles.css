@@ -1142,61 +1142,7 @@ a:focus {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .profile-container {
-    flex-direction: column;
-    padding: 0.5rem;
-  }
 
-  .profile-sidebar {
-    display: none;
-  }
-
-  .profile-content {
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 0.5rem;
-  }
-
-  .profile-header {
-    padding: 1rem 0.5rem;
-  }
-
-  .profile-image {
-    width: 80px;
-    height: 80px;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .sidebar-nav button {
-    justify-content: flex-start;
-    font-size: 0.9rem;
-  }
-
-  h2 {
-    font-size: 1.8rem;
-  }
-
-  .cta-button,
-  .secondary-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .card {
-    padding: 1.5rem;
-  }
-
-  button,
-  a {
-    min-height: 44px;
-  }
-}
 
 /* Status Colors */
 .bg-yellow-100 { background-color: #fefcbf; }
@@ -1914,106 +1860,7 @@ button, input {
   transform: translateY(-4px);
 }
 
-@media (max-width: 768px) {
-  .header nav {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(30, 58, 138, 0.95);
-    padding: 16px;
-  }
 
-  .header nav.active {
-    display: flex;
-  }
-
-  .header nav a {
-    margin: 12px 0;
-    font-size: 1.2rem;
-  }
-
-  .menu-toggle {
-    display: block;
-  }
-
-  .hero h2 {
-    font-size: 2.5rem;
-  }
-
-  .hero p {
-    font-size: 1.1rem;
-  }
-
-  .features h3,
-  .partners h3,
-  .testimonials h3,
-  .faq h3,
-  .cta h3,
-  .section-bg h3 {
-    font-size: 2rem;
-  }
-
-  .cta-button,
-  .secondary-button,
-  .adjusted-secondary-button {
-    padding: 10px 16px;
-    font-size: 1rem;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
-  }
-
-  .partner-card img {
-    width: 80px;
-    height: 80px;
-  }
-
-  .back-button {
-    top: 16px;
-    left: 16px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
-    padding: 60px 16px;
-  }
-
-  .features,
-  .partners,
-  .testimonials,
-  .faq,
-  .cta,
-  .section-bg {
-    padding: 40px 16px;
-  }
-
-  .container {
-    padding: 0 16px;
-  }
-
-  .cta-buttons {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .testimonials-track {
-    animation: none;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-  }
-
-  .testimonial-card {
-    scroll-snap-align: center;
-  }
-}
 
 /* Existing styles remain unchanged unless specified below */
 
@@ -2094,24 +1941,7 @@ button, input {
 }
 
 /* Add media query for responsiveness */
-@media (max-width: 768px) {
-  .max-w-md {
-    max-width: 100%;
-  }
 
-  .p-6 {
-    padding: 1rem;
-  }
-
-  .text-3xl {
-    font-size: 2rem;
-  }
-
-  .cta-button {
-    width: 100%;
-    text-align: center;
-  }
-}
 
 .w-full {
   color: black;
