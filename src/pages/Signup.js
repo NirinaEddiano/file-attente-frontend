@@ -56,7 +56,7 @@ const Signup = () => {
             Connectez-vous pour accéder à votre espace et continuer votre aventure.
           </p>
           <Link to="/login" className="btn btn-outline">
-            Se Connecter tay
+            Se Connecter
           </Link>
           <img src={signupIllustration} alt="Illustration de fusée" className="illustration" />
         </div>
