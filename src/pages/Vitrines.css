@@ -27,6 +27,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+   overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -38,7 +39,7 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem; /* Moins de padding sur mobile */
+  padding: 0 1rem; 
 }
 
 /* --- Header --- */
@@ -59,7 +60,7 @@ body {
 }
 
 .vitrine-header h1 {
-  font-size: 1.5rem; /* Taille ajustée pour mobile */
+  font-size: 1.5rem; 
   font-weight: 700;
   color: var(--primary-blue);
   display: flex;
@@ -69,7 +70,7 @@ body {
 
 /* --- Menu Burger --- */
 .vitrine-menu-toggle {
-  display: block; /* Visible par défaut sur mobile */
+  display: block; 
   font-size: 1.5rem;
   color: var(--primary-blue);
   cursor: pointer;
@@ -79,7 +80,7 @@ body {
 
 /* --- Navigation --- */
 .vitrine-nav {
-  display: none; /* Cachée par défaut sur mobile */
+  display: none; 
   flex-direction: column;
   position: absolute;
   top: 100%;
@@ -94,7 +95,7 @@ body {
 }
 
 .vitrine-nav.vitrine-nav-active {
-  display: flex; /* Affichée quand le menu est ouvert */
+  display: flex; 
 }
 
 .vitrine-nav a {
@@ -133,7 +134,7 @@ body {
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  width: 100%; /* Pleine largeur sur mobile */
+  width: 100%; 
   text-align: center;
 }
 
@@ -168,7 +169,7 @@ body {
 
 /* --- Sections Générales --- */
 main section {
-  padding: 4rem 1.5rem; /* Moins de padding sur mobile */
+  padding: 4rem 1.5rem; 
   text-align: center;
 }
 
@@ -177,7 +178,7 @@ main section:nth-child(even) {
 }
 
 section h3 {
-  font-size: 2rem; /* Taille de titre ajustée */
+  font-size: 2rem; 
   font-weight: 800;
   color: var(--primary-blue);
   margin-bottom: 1rem;
@@ -199,14 +200,14 @@ section .section-subtitle {
 
 .vitrine-hero-content {
   display: flex;
-  flex-direction: column; /* Passage en colonne sur mobile */
+  flex-direction: column;
   align-items: center;
   gap: 2rem;
 }
 
 .vitrine-hero-text {
   text-align: center;
-  order: 2; /* Texte après l'image sur mobile */
+  order: 2; 
 }
 
 .vitrine-hero-text h2 {
@@ -222,7 +223,7 @@ section .section-subtitle {
 }
 
 .vitrine-hero-image-wrapper {
-  order: 1; /* Image avant le texte sur mobile */
+  order: 1; 
   width: 90%;
   max-width: 350px;
 }
@@ -234,7 +235,7 @@ section .section-subtitle {
 
 .vitrine-hero-buttons {
   display: flex;
-  flex-direction: column; /* Boutons en colonne */
+  flex-direction: column;
   gap: 1rem;
   align-items: center;
 }
@@ -252,7 +253,7 @@ section .section-subtitle {
 .vitrine-faq-grid,
 .vitrine-testimonials-carousel {
   display: grid;
-  grid-template-columns: 1fr; /* Une seule colonne par défaut */
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -342,21 +343,21 @@ h4 {
    ========================================================================== */
 @media (min-width: 768px) {
   .vitrine-container {
-    padding: 0 2rem; /* Plus de padding */
+    padding: 0 2rem;
   }
 
   .vitrine-menu-toggle {
-    display: none; /* Cacher le menu burger */
+    display: none; 
   }
 
   .vitrine-nav {
-    display: flex; /* Afficher la nav horizontalement */
+    display: flex; 
     flex-direction: row;
     position: static;
     background: none;
     box-shadow: none;
     padding: 0;
-    gap: 0.5rem; /* Espacement réduit entre les liens */
+    gap: 0.5rem; 
   }
 
   .vitrine-nav-active-link::after {
@@ -374,7 +375,7 @@ h4 {
   .vitrine-secondary-button,
   .vitrine-cta-buttons,
   .vitrine-secondary-buttons {
-    width: auto; /* Largeur auto pour les boutons */
+    width: auto; 
   }
   
   .vitrine-nav .vitrine-secondary-button,
@@ -383,14 +384,14 @@ h4 {
   }
   
   .vitrine-hero-content {
-    flex-direction: row; /* Retour à une disposition en ligne */
+    flex-direction: row; 
     text-align: left;
     gap: 3rem;
   }
 
   .vitrine-hero-text {
     text-align: left;
-    order: 1; /* Le texte revient en premier */
+    order: 1; 
   }
 
   .vitrine-hero-image-wrapper {
@@ -403,7 +404,7 @@ h4 {
   }
 
   .vitrine-hero-buttons {
-    flex-direction: row; /* Boutons en ligne */
+    flex-direction: row; 
     justify-content: flex-start;
   }
 
@@ -438,7 +439,7 @@ h4 {
   }
   
   .vitrine-nav {
-    gap: 1rem; /* Plus d'espace pour la nav desktop */
+    gap: 1rem; 
   }
 
   .vitrine-hero {
@@ -450,20 +451,20 @@ h4 {
   }
 
   .vitrine-features-grid {
-    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+    grid-template-columns: repeat(4, 1fr); 
   }
   
   .vitrine-partners-grid {
-    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+    grid-template-columns: repeat(3, 1fr); 
   }
   
   .vitrine-faq-grid {
-    grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
+    grid-template-columns: repeat(4, 1fr); 
   }
   .button {
     display: flex;
     justify-content: center;
-    padding-left: 0; /* Centrer le bouton sur desktop */
+    padding-left: 0; 
     margin-top: 3rem;
   }
 }
