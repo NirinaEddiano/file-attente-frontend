@@ -86,6 +86,7 @@
     flex-wrap: wrap;
     margin: 1rem 0;
     padding: 0 1rem;
+    flex-wrap: wrap;
   }
   
   .profil-menu-horizontal button {
@@ -152,8 +153,20 @@
     .profil-container {
       padding: 0.5rem;
     }
+    .profil-content .card .flex.flex-col.items-center {
+    padding: 0; 
+  }
+
+  .profil-image {
+    width: 80px;
+    height: 80px;
+  }
   
-    .profil-content {
-      padding: 0.5rem;
-    }
+  .contact {
+    flex-direction: column; 
+    gap: 0.5rem;
+    padding-left: 0;
+    margin-top: 1rem;
+    align-items: center;
+  }
   }
