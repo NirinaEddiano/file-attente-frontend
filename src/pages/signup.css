@@ -212,7 +212,7 @@
   .signup-card { max-width: 800px; min-height: auto; }
   .panel-left { flex-basis: 40%; padding: 2rem; clip-path: ellipse(120% 80% at 30% 50%); }
   .panel-left h2 { font-size: 1.75rem; }
-  .panel-left p { font-size: 0.85rem; max-width: 250px; }
+  .panel-left p { font-size: 0.85rem; max-width: 250px; margin-bottom: 1.5rem; }
   .illustration { max-width: 220px; }
   .panel-right { padding: 2rem; }
   .form-container { max-width: 300px; }
@@ -222,15 +222,16 @@
 }
 
 @media (max-width: 768px) {
-  .signup-card { flex-direction: column; max-width: 100%; border-radius: 1rem; }
+  .signup-card { flex-direction: column; max-width: 100%; border-radius: 1rem; min-height: auto; }
   .panel-left { 
     flex-basis: auto; 
     width: 100%; 
-    padding: 2rem; 
-    clip-path: ellipse(150% 80% at 50% -30%); 
+    padding: 1.5rem; 
+    clip-path: ellipse(150% 80% at 50% 0%); 
+    min-height: auto;
   }
-  .panel-left h2 { font-size: 1.5rem; }
-  .panel-left p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1.5rem; }
+  .panel-left h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .panel-left p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1rem; }
   .btn-outline { 
     width: 100%; 
     max-width: 280px; 
@@ -239,9 +240,11 @@
     background-color: transparent;
     border: 2px solid var(--white-primary);
     color: var(--white-primary);
+    z-index: 1;
+    margin-bottom: 1rem;
   }
   .illustration { display: none; }
-  .panel-right { padding: 2rem 1rem; }
+  .panel-right { padding: 1.5rem 1rem; }
   .form-container { max-width: 100%; }
   .form-title { font-size: 1.75rem; margin-bottom: 1.5rem; }
   .input-wrapper { margin-bottom: 1.2rem; }
@@ -256,9 +259,9 @@
 @media (max-width: 480px) {
   .signup-page-container { padding: 1rem; }
   .signup-card { border-radius: 0.75rem; }
-  .panel-left { padding: 1.5rem; clip-path: ellipse(150% 80% at 50% -20%); }
-  .panel-left h2 { font-size: 1.25rem; }
-  .panel-left p { font-size: 0.75rem; margin-bottom: 1rem; }
+  .panel-left { padding: 1rem; clip-path: ellipse(150% 80% at 50% 0%); }
+  .panel-left h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .panel-left p { font-size: 0.75rem; margin-bottom: 0.75rem; }
   .btn-outline { 
     height: 40px; 
     font-size: 0.85rem; 
@@ -267,8 +270,9 @@
     color: var(--white-primary);
     width: 100%;
     max-width: 240px;
+    margin-bottom: 0.75rem;
   }
-  .panel-right { padding: 1.5rem 0.75rem; }
+  .panel-right { padding: 1rem 0.75rem; }
   .form-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
   .input-wrapper input { height: 45px; font-size: 0.85rem; padding: 0 14px 0 38px; border-radius: 45px; }
   .input-wrapper .input-icon { left: 12px; font-size: 0.85rem; }
