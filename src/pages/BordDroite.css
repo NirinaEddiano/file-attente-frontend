@@ -111,7 +111,37 @@
   }
   
   @media (max-width: 768px) {
-    .bord-droite {
-      display: none;
-    }
+  .bord-droite {
+    display: none; /* Caché sur mobile et tablette */
   }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .bord-droite {
+    width: 200px;
+    padding: 15px;
+  }
+
+  .profile-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .username {
+    font-size: 1rem;
+  }
+
+  .ticket-title {
+    font-size: 1rem;
+  }
+
+  .ticket-details p {
+    font-size: 0.85rem;
+  }
+
+  .track-button,
+  .take-ticket-button {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+}
