@@ -237,12 +237,8 @@
     height: 42px; 
     font-size: 0.9rem; 
     background-color: transparent;
-    border: 2px solid #3B82F6;
-    color: #3B82F6;
-  }
-  .btn-outline:hover{
-    background-color: #3B82F6;
-    color: #FFFFFF;
+    border: 2px solid var(--white-primary);
+    color: var(--white-primary);
   }
   .illustration { display: none; }
   .panel-right { padding: 2rem 1rem; }
@@ -264,17 +260,13 @@
   .panel-left h2 { font-size: 1.25rem; }
   .panel-left p { font-size: 0.75rem; margin-bottom: 1rem; }
   .btn-outline { 
-    width: 100%; 
-    max-width: 280px; 
-    height: 42px; 
-    font-size: 0.9rem; 
+    height: 40px; 
+    font-size: 0.85rem; 
     background-color: transparent;
-    border: 2px solid #3B82F6;
-    color: #3B82F6;
-  }
-  .btn-outline:hover{
-    background-color: #3B82F6;
-    color: #FFFFFF;
+    border: 2px solid var(--white-primary);
+    color: var(--white-primary);
+    width: 100%;
+    max-width: 240px;
   }
   .panel-right { padding: 1.5rem 0.75rem; }
   .form-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
