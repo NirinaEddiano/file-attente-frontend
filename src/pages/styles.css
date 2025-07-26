@@ -2879,11 +2879,6 @@ input[type="password"] {
   }
 }
 
-.animate-slide-in {
-  animation: slide-in 0.5s ease-out forwards;
-}
-
-/* Animation pour l'icône */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -2896,23 +2891,7 @@ input[type="password"] {
   }
 }
 
-.animate-pulse {
-  animation: pulse 1.5s infinite;
-}
-
-/* Style pour la carte */
-.card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Bordure dorée */
-.gold-border {
-  border: 2px solid var(--accent-gold);
-}
-
-/* Style pour le conteneur principal du message mobile */
+/* Conteneur principal pour le message mobile */
 .min-h-screen {
   min-height: 100vh;
   background-color: var(--bg-light);
@@ -2922,60 +2901,132 @@ input[type="password"] {
   padding: 16px;
 }
 
-/* Style spécifique pour le message mobile/tablette */
-@media (max-width: 1023px) {
+/* Style de la carte pour mobile et tablette */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.gold-border {
+  border: 2px solid var(--accent-gold);
+}
+
+/* Styles spécifiques pour mobile (max-width: 639px) */
+@media (max-width: 639px) {
   .card {
     width: 100%;
-    max-width: 90vw; /* Limite à 90% de la largeur de la vue pour éviter les débordements */
-    padding: 24px; /* Padding réduit pour les petits écrans */
-    margin: 0 auto;
+    max-width: 90vw; /* Limite à 90% de la largeur de la vue */
+    padding: 16px; /* Padding réduit pour petits écrans */
   }
 
-  .gold-border {
-    border-width: 2px;
-  }
-
-  /* Style pour l'icône d'avertissement */
   .fa-exclamation-circle {
-    font-size: 2.5rem; /* Taille réduite pour mobile */
+    font-size: 2.25rem; /* Icône légèrement plus petite */
     color: var(--accent-gold);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
-  /* Style pour le titre */
   h2 {
-    font-size: 1.5rem; /* Taille de police réduite pour mobile */
+    font-size: 1.25rem; /* Taille de police adaptée */
     font-weight: 600;
     color: var(--primary-blue);
-    margin-bottom: 16px;
-    line-height: 1.3;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    text-align: center;
   }
 
-  /* Style pour le texte descriptif */
   p {
-    font-size: 0.9rem; /* Taille de police pour lisibilité sur mobile */
+    font-size: 0.875rem; /* Texte lisible sur mobile */
     color: var(--text-gray);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     line-height: 1.5;
+    text-align: center;
   }
 
-  /* Style pour le bouton */
   .cta-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--accent-gold);
+    background: linear-gradient(45deg, var(--accent-gold), #ffec99);
     color: var(--primary-blue);
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 6px;
     transition: background-color 0.3s ease, transform 0.2s ease;
     cursor: pointer;
+    width: 100%; /* Bouton pleine largeur sur mobile */
+    max-width: 200px; /* Limite pour éviter un bouton trop large */
   }
 
   .cta-button:hover {
-    background-color: #d97706; /* Teinte plus foncée pour hover */
+    background: linear-gradient(45deg, #ffec99, var(--accent-gold));
+    transform: translateY(-2px);
+  }
+
+  .cta-button:active {
+    transform: translateY(0);
+  }
+
+  .cta-button i {
+    margin-right: 6px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Styles pour tablette (min-width: 640px et max-width: 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .card {
+    max-width: 500px; /* Largeur optimisée pour tablettes */
+    padding: 24px;
+  }
+
+  .fa-exclamation-circle {
+    font-size: 2.75rem; /* Icône légèrement plus grande */
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Taille de police pour tablette */
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 16px;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  p {
+    font-size: 1rem;
+    color: var(--text-gray);
+    margin-bottom: 24px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, var(--accent-gold), #ffec99);
+    color: var(--primary-blue);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    width: auto; /* Bouton taille normale sur tablette */
+  }
+
+  .cta-button:hover {
+    background: linear-gradient(45deg, #ffec99, var(--accent-gold));
     transform: translateY(-2px);
   }
 
@@ -2989,28 +3040,12 @@ input[type="password"] {
   }
 }
 
-/* Ajustements pour les tablettes (entre 640px et 1023px) */
-@media (min-width: 640px) and (max-width: 1023px) {
-  .card {
-    max-width: 500px; /* Largeur légèrement plus grande pour tablettes */
-    padding: 32px;
-  }
+/* Animation pour l'entrée du contenu */
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out forwards;
+}
 
-  .fa-exclamation-circle {
-    font-size: 3rem;
-  }
-
-  h2 {
-    font-size: 1.75rem;
-      place-items:center;
-  }
-
-  p {
-    font-size: 1rem;
-  }
-
-  .cta-button {
-    font-size: 1rem;
-    padding: 12px 24px;
-  }
+/* Animation pour l'icône */
+.animate-pulse {
+  animation: pulse 1.5s infinite;
 }
