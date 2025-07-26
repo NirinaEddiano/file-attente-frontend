@@ -217,7 +217,7 @@
   .panel-form { padding: 2rem; }
   .panel-illustration { padding: 2rem; clip-path: ellipse(120% 80% at 70% 50%); }
   .panel-illustration h2 { font-size: 1.75rem; }
-  .panel-illustration p { font-size: 0.85rem; max-width: 250px; }
+  .panel-illustration p { font-size: 0.85rem; max-width: 250px; margin-bottom: 1.5rem; }
   .illustration { max-width: 220px; }
   .form-container { max-width: 300px; }
   .form-title { font-size: 2rem; margin-bottom: 2rem; }
@@ -227,20 +227,21 @@
 }
 
 @media (max-width: 768px) {
-  .login-card { flex-direction: column-reverse; max-width: 100%; border-radius: 1rem; }
+  .login-card { flex-direction: column-reverse; max-width: 100%; border-radius: 1rem; min-height: auto; }
   .panel-form, .panel-illustration { 
     flex-basis: auto; 
     width: 100%; 
-    padding: 2rem; 
+    padding: 1.5rem; 
     clip-path: none; 
   }
-  .panel-form { padding-top: 3rem; }
+  .panel-form { padding-top: 2rem; }
   .panel-illustration { 
-    padding-bottom: 2rem; 
-    clip-path: ellipse(150% 80% at 50% 130%); 
+    padding: 1.5rem; 
+    clip-path: ellipse(150% 80% at 50% 0%); 
+    min-height: auto;
   }
-  .panel-illustration h2 { font-size: 1.5rem; }
-  .panel-illustration p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1.5rem; }
+  .panel-illustration h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .panel-illustration p { font-size: 0.8rem; max-width: 100%; margin-bottom: 1rem; }
   .btn-outline { 
     width: 100%; 
     max-width: 280px; 
@@ -249,6 +250,7 @@
     background-color: transparent;
     border: 2px solid var(--white-primary);
     color: var(--white-primary);
+    margin-bottom: 1rem;
   }
   .illustration { display: none; }
   .form-container { max-width: 100%; }
@@ -265,10 +267,10 @@
 @media (max-width: 480px) {
   .login-page-container { padding: 1rem; }
   .login-card { border-radius: 0.75rem; }
-  .panel-form { padding: 1.5rem 0.75rem; }
-  .panel-illustration { padding: 1.5rem; clip-path: ellipse(150% 80% at 50% 120%); }
-  .panel-illustration h2 { font-size: 1.25rem; }
-  .panel-illustration p { font-size: 0.75rem; margin-bottom: 1rem; }
+  .panel-form { padding: 1rem 0.75rem; }
+  .panel-illustration { padding: 1rem; clip-path: ellipse(150% 80% at 50% 0%); }
+  .panel-illustration h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .panel-illustration p { font-size: 0.75rem; margin-bottom: 0.75rem; }
   .btn-outline { 
     height: 40px; 
     font-size: 0.85rem; 
@@ -277,6 +279,7 @@
     color: var(--white-primary);
     width: 100%;
     max-width: 240px;
+    margin-bottom: 0.75rem;
   }
   .form-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
   .input-wrapper input { height: 45px; font-size: 0.85rem; padding: 0 14px 0 38px; border-radius: 45px; }
