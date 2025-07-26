@@ -473,11 +473,8 @@ if (!isDesktop) {
     return (
       <div className="min-h-screen bg-bg-light flex items-center justify-center p-4">
         <div className="card gold-border p-8 text-center max-w-md mx-auto animate-slide-in">
-          <i className="fas fa-exclamation-circle text-4xl text-accent-gold mb-4 animate-pulse"></i>
-          <p className="text-2xl font-semibold text-primary-blue mb-4">
-            Version Mobile en Cours
-          </p>
           <p className="text-gray-600 mb-6">
+            <strong> Version Mobile en Cours</strong> <br/> <br/> 
             La version pour mobile et tablette est actuellement en cours de développement. Veuillez utiliser un ordinateur pour accéder à QueueMaster.
           </p>
           <button
